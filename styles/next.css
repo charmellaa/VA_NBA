@@ -53,9 +53,8 @@ body, html {
     justify-content: center;
 }
 
-/* Charts and Player List Styling */
-.player-list, .scatterplot, .radar-chart, 
-.parallel-coordinates, .line-chart {
+/* Scatterplot Styling */
+.scatterplot {
     background-color: #ffffff; /* Light card background */
     border: 1px solid #dddddd;
     border-radius: 10px;
@@ -64,6 +63,99 @@ body, html {
     flex-direction: column;
     overflow: hidden;
     height: 43vh;
+}
+
+.scatterplot h4 {
+    text-align: center;
+    color: #333333;
+    margin: 0 0 10px 0;
+}
+
+.scatterplot svg {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.scatterplot .dot {
+    transition: all 0.3s ease;
+}
+
+.scatterplot .dot:hover {
+    stroke: black;
+    stroke-width: 2px;
+}
+
+/* Radar Chart Styling */
+.radar-chart {
+    background-color: #ffffff; /* Light card background */
+    border: 1px solid #dddddd;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 43vh;
+}
+
+.radar-chart h4 {
+    text-align: center;
+    color: #333333;
+    margin: 0 0 10px 0;
+}
+
+/* Parallel Coordinates Styling */
+.parallel-coordinates {
+    background-color: #ffffff; /* Light card background */
+    border: 1px solid #dddddd;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 43vh;
+}
+
+.parallel-coordinates h4 {
+    text-align: center;
+    color: #333333;
+    margin: 0 0 10px 0;
+}
+
+/* Line Chart Styling */
+.line-chart {
+    background-color: #ffffff; /* Light card background */
+    border: 1px solid #dddddd;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 43vh;
+}
+
+.line-chart h4 {
+    text-align: center;
+    color: #333333;
+    margin: 0 0 10px 0;
+}
+
+/* Player List Styling */
+.player-list {
+    background-color: #ffffff; /* Light card background */
+    border: 1px solid #dddddd;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 43vh;
+}
+
+.player-list h4 {
+    text-align: center;
+    color: #333333;
+    margin: 0 0 10px 0;
 }
 
 /* Scrollable Content */
@@ -93,6 +185,7 @@ body, html {
     border-radius: 5px;
     transition: background-color 0.3s;
 }
+
 
 /* Player Entry Styling */
 .player-entry {
@@ -156,13 +249,6 @@ body, html {
     font-size: 14px;
 }
 
-/* Chart Titles */
-.player-list h4, .scatterplot h4, .radar-chart h4,
-.parallel-coordinates h4, .line-chart h4 {
-    margin: 0 0 10px 0;
-    text-align: center;
-    color: #333333;
-}
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
