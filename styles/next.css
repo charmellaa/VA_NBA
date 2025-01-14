@@ -1,0 +1,177 @@
+/* General Reset */
+body, html {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9; /* Light background */
+    height: 100vh;
+    color: #333333; /* Dark text for readability */
+}
+
+/* Legend Bar */
+.legend-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff; /* Light bar background */
+    border-bottom: 1px solid #dddddd;
+    padding: 10px;
+}
+
+.legend-item {
+    display: inline-block;
+    margin: 0 10px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+/* Main Container */
+.main-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    margin: 10px;
+}
+
+/* Upper Section */
+.upper-section {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr; 
+    gap: 10px;
+    height: 50%;
+    justify-content: center;
+}
+
+/* Lower Section */
+.lower-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    height: 50%;
+    justify-content: center;
+}
+
+/* Charts and Player List Styling */
+.player-list, .scatterplot, .radar-chart, 
+.parallel-coordinates, .line-chart {
+    background-color: #ffffff; /* Light card background */
+    border: 1px solid #dddddd;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 43vh;
+}
+
+/* Scrollable Content */
+.scrollable-content {
+    overflow-y: auto; 
+    max-height: calc(100% - 30px);
+    padding-right: 10px; 
+}
+
+.scrollable-content::-webkit-scrollbar {
+    width: 8px; 
+}
+
+.scrollable-content::-webkit-scrollbar-thumb {
+    background-color: #cccccc; 
+    border-radius: 5px;
+}
+
+.scrollable-content::-webkit-scrollbar-thumb:hover {
+    background-color: #aaaaaa; 
+}
+
+.scrollable-content p {
+    margin: 5px 0;
+    padding: 5px;
+    color: #444444;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+/* Player Entry Styling */
+.player-entry {
+    display: flex;
+    align-items: flex-start;
+    border: 1px solid #eeeeee; 
+    border-radius: 10px; 
+    margin: 10px 0; 
+    padding: 10px; 
+    background-color: #f5f5f5;
+}
+
+.player-photo img {
+    width: 50px;
+    border-radius: 50%; 
+    object-fit: cover;
+    margin-right: 15px; 
+    border: 2px solid #cccccc; 
+}
+
+.player-info {
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.player-name {
+    font-size: 14px; 
+    font-weight: bold;
+    margin: 0 0 -2px 0; 
+    color: #333333;
+}
+
+.player-info p {
+    margin: 2px 0; 
+    font-size: 12px; 
+    color: #555555;
+}
+
+/* Search Bar */
+#search-bar {
+    width: 90%;
+    border-radius: 5px; 
+    outline: none;
+    background-color: #ffffff; 
+    color: #333333; 
+    border: 1px solid #cccccc;
+    padding: 5px 10px;
+}
+
+#search-bar:hover,
+#search-bar:focus {
+    box-shadow: 0 0 5px #aaaaaa; 
+}
+
+#no-player-found {
+    display: none; 
+    text-align: center; 
+    color: #888888; 
+    font-size: 14px;
+}
+
+/* Chart Titles */
+.player-list h4, .scatterplot h4, .radar-chart h4,
+.parallel-coordinates h4, .line-chart h4 {
+    margin: 0 0 10px 0;
+    text-align: center;
+    color: #333333;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .upper-section {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+    .lower-section {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+}
