@@ -278,3 +278,25 @@ body, html {
     margin-right: 8px;
   }
   
+  .scatterplot-legend {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.scatterplot-legend .legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.9em;
+    margin-right: 15px;
+}
+
+.scatterplot-legend .legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+    display: inline-block;
+}

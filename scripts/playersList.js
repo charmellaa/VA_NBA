@@ -2,7 +2,10 @@ d3.csv("data/players_data1.csv").then(data => {
     const playerList = d3.select("#player-list");
     const search = d3.select("#search-bar");
     const noPlayer = d3.select("#no-player-found");
-  
+    
+    const selectedPlayers = []; 
+    const maxSelections = 3;
+
     const positionColors = {
         "Guard": "#8d108d",
         "Center-Forward": "#0b5cad",
@@ -24,6 +27,27 @@ d3.csv("data/players_data1.csv").then(data => {
             .enter()
             .append("div")
             .attr("class", "player-entry")
+            .attr("data-player-name", d => d.Player) // Store player name as data attribute
+            .style("background-color", d => selectedPlayers.includes(d.Player) ? "#d9f2d9" : "#f5f5f5")
+                .on("click", function(event, d) {
+                    const playerName = d.Player;
+
+                    if (selectedPlayers.includes(playerName)) {
+                        // Deselect player
+                        selectedPlayers.splice(selectedPlayers.indexOf(playerName), 1);
+                        d3.select(this).style("background-color", "#f5f5f5");
+                    } else if (selectedPlayers.length < maxSelections) {
+                        // Select player
+                        selectedPlayers.push(playerName);
+                        d3.select(this).style("background-color", "#d9f2d9");
+                    } else {
+                        alert("You can only select up to 3 players.");
+                    }
+
+                    // Update scatterplot based on the selection through custom event
+                    playerList.dispatch("playerSelectionChange", { detail: { selectedPlayers } });
+                    // console.log(selectedPlayers);
+                })
             .html(d => `
                 <div class="player-photo">
                 <img src="${d.Player_img && d.Player_img !== 'null' ? d.Player_img : 'default.png'}" alt="${d.Player || 'Unknown Player'}" style= "border: 2px solid ${positionColors[d.Position]}">

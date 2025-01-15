@@ -1,4 +1,6 @@
 // Load PCA Data and Render Scatterplot
+let scatterplotData;
+
 d3.csv("data/pca_results.csv").then(data => {
     // Parse data
     data.forEach(d => {
@@ -6,8 +8,16 @@ d3.csv("data/pca_results.csv").then(data => {
         d.PC2 = +d.PC2;
     });
 
+    scatterplotData = data;
+
     // Create Scatterplot
-    renderScatterplot(data);
+    renderScatterplot(scatterplotData);
+
+    // changes in selected players
+    d3.select("#player-list").on("playerSelectionChange", function(event) {
+        const selectedPlayers = event.detail.selectedPlayers || [];
+        updateScatterplot(scatterplotData, selectedPlayers);
+    });
 });
 
 function renderScatterplot(data) {
@@ -15,9 +25,12 @@ function renderScatterplot(data) {
     const boundingBox = container.node().getBoundingClientRect();
 
     const width = boundingBox.width - 100;
-    const height = boundingBox.height - 100;
+    const height = boundingBox.height - 120;
 
-    const margin = { top: 20, right: 20, bottom: 40, left: 60 };
+    const margin = { top: 20, right: 20, bottom: 60, left: 60 };
+
+    // Clear existing scatterplot if any
+    container.selectAll("svg").remove();
 
     const svg = container
         .append("svg")
@@ -85,4 +98,36 @@ function renderScatterplot(data) {
         .on("mouseout", () => {
             d3.select(".tooltip").remove();
         });
+
+    // Add legend below the scatterplot
+    const legendContainer = container.append("div").attr("class", "scatterplot-legend");
+
+    const uniqueClusters = Array.from(new Set(data.map(d => d.Cluster)));
+
+    uniqueClusters.forEach(cluster => {
+        const legendItem = legendContainer.append("div").attr("class", "legend-item");
+        legendItem.append("span")
+            .attr("class", "legend-color")
+            .style("background-color", colorScale(cluster));
+        legendItem.append("span").text(cluster);
+    });
+}
+
+function updateScatterplot(data, selectedPlayers) {
+    const container = d3.select(".scatterplot");
+    const svg = container.select("svg g");
+
+    // Update points visibility based on selection
+    const points = svg.selectAll(".dot")
+        .data(data);
+
+    points
+        .transition()
+        .duration(300)
+        .style("opacity", d => {
+            if (selectedPlayers.length === 0) return 0.7; // Default opacity
+            return selectedPlayers.includes(d.Player) ? 1 : 0.2; // Highlight selected players
+        })
+        .style("stroke", d => (selectedPlayers.includes(d.Player) ? "black" : "none"))
+        .style("stroke-width", d => (selectedPlayers.includes(d.Player) ? 2 : 0));
 }
