@@ -160,7 +160,7 @@ function updateScatterplot(data, selectedPlayers) {
         .duration(300)
         .style("opacity", d => {
             if (selectedPlayers.length === 0) return 0.7; // Default opacity
-            return selectedPlayers.includes(d.Player) ? 1 : 0.2; // Highlight selected players
+            return selectedPlayers.includes(d.Player) ? 1 : 0.05; // Highlight selected players
         })
         .style("stroke", d => (selectedPlayers.includes(d.Player) ? "black" : "none"))
         .style("stroke-width", d => (selectedPlayers.includes(d.Player) ? 2 : 0));

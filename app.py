@@ -42,7 +42,10 @@ def update_clusters():
         # Prepare data for the response
         pca_df = pd.DataFrame(pca_results, columns=["PC1", "PC2"])
         pca_df["Player"] = nba_data["Player"]
-        pca_df["Cluster"] = cluster_labels
+        pca_df["Cluster"] = pca_df["Cluster"] = ["Cluster " + str(label + 1) for label in cluster_labels]
+
+
+
 
         return jsonify(pca_df.to_dict(orient="records"))
     except Exception as e:

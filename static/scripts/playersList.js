@@ -4,6 +4,7 @@ d3.csv("/data/players_data1.csv").then(data => {
     const search = d3.select("#search-bar");
     const noPlayer = d3.select("#no-player-found");
     
+    const deselectButton = d3.select("#deselect-button");
 
     const maxSelections = 3;
 
@@ -47,6 +48,8 @@ d3.csv("/data/players_data1.csv").then(data => {
 
                     // Update scatterplot based on the selection through custom event
                     playerList.dispatch("playerSelectionChange", { detail: { selectedPlayers } });
+                    updateDeselectButton();  // Update button state
+
                     // console.log(selectedPlayers);
                 })
             .html(d => `
@@ -78,7 +81,38 @@ d3.csv("/data/players_data1.csv").then(data => {
         );
 
         renderPlayers(playerSearch);
+        updateDeselectButton();
     });
+    function updateDeselectButton() {
+        const selectedCount = selectedPlayers.length;
+
+        if (selectedCount === 0) {
+            deselectButton.attr("disabled", true).text("Deselect All");
+        } else {
+            deselectButton.attr("disabled", null).text(`Deselect (${selectedCount})`);
+        }
+
+        // If 3 players are selected, show "Deselect All"
+        if (selectedCount === 3) {
+            deselectButton.text("Deselect All");
+        }
+    }
+
+    // Handle Deselect All button click
+    deselectButton.on("click", function() {
+        // Clear all selected players
+        selectedPlayers.length = 0;
+
+        // Reset all player selections to default (deselect)
+        playerList.selectAll(".player-entry")
+            .style("background-color", "#f5f5f5");
+
+        // Update the Deselect button and scatterplot
+        updateDeselectButton();
+        playerList.dispatch("playerSelectionChange", { detail: { selectedPlayers } });
+    });
+    
+
 })
 .catch(error => {
     console.error("Error loading the CSV file:", error);

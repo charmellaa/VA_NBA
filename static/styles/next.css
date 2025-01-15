@@ -300,3 +300,18 @@ body, html {
     margin-right: 8px;
     display: inline-block;
 }
+
+.deselect-button {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.deselect-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
