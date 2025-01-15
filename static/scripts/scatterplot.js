@@ -1,7 +1,38 @@
 // Load PCA Data and Render Scatterplot
 let scatterplotData;
+let selection;
 
-d3.csv("data/pca_results.csv").then(data => {
+document.addEventListener("DOMContentLoaded", () => {
+    const dropdown = document.getElementById("cluster-dropdown");
+    dropdown.value = "3";  // Reset to default cluster number (3)
+
+    dropdown.addEventListener("change", () => {
+        const selectedClusters = dropdown.value;
+
+        // Fetch updated cluster data from the server
+        fetch("/update_clusters", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ clusters: selectedClusters }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error(data.error);
+                alert("An error occurred while updating clusters.");
+            } else {
+                renderScatterplot(data); // Redraw scatterplot with new data
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching cluster data:", error);
+        });
+    });
+});
+
+d3.csv("/data/pca_results.csv").then(data => {
     // Parse data
     data.forEach(d => {
         d.PC1 = +d.PC1; // Convert to numeric
@@ -31,6 +62,7 @@ function renderScatterplot(data) {
 
     // Clear existing scatterplot if any
     container.selectAll("svg").remove();
+    container.select(".scatterplot-legend").remove();
 
     const svg = container
         .append("svg")
@@ -84,7 +116,7 @@ function renderScatterplot(data) {
         .style("fill", d => colorScale(d.Cluster))
         .style("opacity", 0.7)
         .on("mouseover", (event, d) => {
-            const tooltip = d3.select(".scatterplot").append("div")
+            d3.select(".scatterplot").append("div")
                 .attr("class", "tooltip")
                 .style("position", "absolute")
                 .style("background", "white")
@@ -98,7 +130,8 @@ function renderScatterplot(data) {
         .on("mouseout", () => {
             d3.select(".tooltip").remove();
         });
-
+    
+    updateScatterplot(data, selectedPlayers);
     // Add legend below the scatterplot
     const legendContainer = container.append("div").attr("class", "scatterplot-legend");
 
@@ -114,6 +147,7 @@ function renderScatterplot(data) {
 }
 
 function updateScatterplot(data, selectedPlayers) {
+
     const container = d3.select(".scatterplot");
     const svg = container.select("svg g");
 

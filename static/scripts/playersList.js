@@ -1,9 +1,10 @@
-d3.csv("data/players_data1.csv").then(data => {
+const selectedPlayers = [];
+d3.csv("/data/players_data1.csv").then(data => {
     const playerList = d3.select("#player-list");
     const search = d3.select("#search-bar");
     const noPlayer = d3.select("#no-player-found");
     
-    const selectedPlayers = []; 
+
     const maxSelections = 3;
 
     const positionColors = {

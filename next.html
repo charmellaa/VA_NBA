@@ -4,15 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NBA Player Stats Visualizations</title>
-  <link rel="stylesheet" href="styles/next.css">
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="scripts/playersList.js" defer></script>
-  <script src="scripts/scatterplot.js" defer></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/next.css') }}">
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="{{ url_for('static', filename='scripts/playersList.js') }}" defer></script>
+<script src="{{ url_for('static', filename='scripts/scatterplot.js') }}" defer></script>
+
 </head>
 <body class="next-page">
   <div class="main-container">
     <div class="upper-section">
-      <div class="scatterplot"></div>
+      <div class="scatterplot">
+        <h4>Scatterplot</h4>
+        <div>
+          <label for="cluster-dropdown">Number of Clusters:</label>
+          <select id="cluster-dropdown">
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+          </select>
+        </div>
+      </div>
 
       <div class="radar-chart">
         <h4>Radar Chart</h4>
