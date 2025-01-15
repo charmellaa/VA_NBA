@@ -14,7 +14,7 @@ function renderScatterplot(data) {
     const container = d3.select(".scatterplot");
     const boundingBox = container.node().getBoundingClientRect();
 
-    const width = boundingBox.width - 100; // Subtract padding/margin
+    const width = boundingBox.width - 100;
     const height = boundingBox.height - 100;
 
     const margin = { top: 20, right: 20, bottom: 40, left: 60 };
@@ -54,7 +54,7 @@ function renderScatterplot(data) {
 
     svg.append("text")
         .attr("x", -height / 2)
-        .attr("y", -margin.left + 10)
+        .attr("y", -margin.left + 30)
         .attr("transform", "rotate(-90)")
         .style("text-anchor", "middle")
         .text("PC2");

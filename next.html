@@ -6,59 +6,55 @@
   <title>NBA Player Stats Visualizations</title>
   <link rel="stylesheet" href="styles/next.css">
   <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="scripts/playersList.js" defer></script> <!-- Separate script file -->
+  <script src="scripts/playersList.js" defer></script>
   <script src="scripts/scatterplot.js" defer></script>
-
-</head>
 </head>
 <body class="next-page">
-  <!-- Top Legend Bar -->
-  <div class="legend-bar">
-    <span class="legend-item" style="background-color: #8d108d;">G</span> 
-    <span class="legend-item" style="background-color: #0b5cad;">C-F</span> 
-    <span class="legend-item" style="background-color: #eea513;">F</span> 
-    <span class="legend-item" style="background-color: #d23a3a;">F-C</span> 
-    <span class="legend-item" style="background-color: #259e25;">F-G</span> 
-    <span class="legend-item" style="background-color: #d00a8e;">G-F</span> 
-    <span class="legend-item" style="background-color: #026b6b;">C</span>
-  </div>
-  <!-- Main Content -->
   <div class="main-container">
-    <!-- Upper Part -->
     <div class="upper-section">
-      <!-- Scatterplot -->
-      <div class="scatterplot">
-        <h4>Scatterplot</h4>
-        <!-- Placeholder for scatterplot -->
-      </div>
-      <!-- Radar Chart -->
+      <div class="scatterplot"></div>
+
       <div class="radar-chart">
         <h4>Radar Chart</h4>
-        <!-- Placeholder for radar chart -->
       </div>
-      <!-- Scrollable Player List -->
-      <div class="player-list">
-        <h4>NBA Players</h4>
-        <input type = "text" id = "search-bar" placeholder="Enter player..."/>
-        <div class="scrollable-content" id = "player-list">
+
+      <div class="side-section">
+        <div class="legend">
+          <div class="legend-item">
+            <span class="legend-color" style="background-color: #8d108d;"></span> Guard
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background-color: #026b6b;"></span> Center
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background-color: #eea513;"></span> Forward
+          </div>
+           <div class="legend-item">
+            <span class="legend-color" style="background-color: #0b5cad;"></span> Center-Forward
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background-color: #d23a3a;"></span> Forward-Center
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background-color: #259e25;"></span> Forward-Guard
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background-color: #d00a8e;"></span> Guard-Forward
+          </div>
         </div>
-        <p id="no-player-found">
-          No player found
-        </p>
+        <div class="player-list">
+          <input type="text" id="search-bar" placeholder="Enter player..." />
+          <div class="scrollable-content" id="player-list"></div>
+          <p id="no-player-found">No player found</p>
+        </div>
       </div>
     </div>
-
-    <!-- Lower Part -->
     <div class="lower-section">
-      <!-- Parallel Coordinates -->
       <div class="parallel-coordinates">
         <h4>Parallel Coordinates Chart</h4>
-        <!-- Placeholder for parallel coordinates -->
       </div>
-      <!-- Line Chart -->
       <div class="line-chart">
         <h4>Line Chart</h4>
-        <!-- Placeholder for line chart -->
       </div>
     </div>
   </div>

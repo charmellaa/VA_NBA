@@ -1,17 +1,17 @@
-d3.csv("data/preprocessed/player_list.csv").then(data => {
-  const playerList = d3.select("#player-list");
-  const search = d3.select("#search-bar");
-  const noPlayer = d3.select("#no-player-found");
-
-  const positionColors = {
-      "G": "#8d108d",
-      "C-F": "##0b5cad",
-      "F": "#eea513",
-      "F-C": "#d23a3a",
-      "F-G": "#259e25",
-      "G-F": "#d00a8e",
-      "C": "#026b6b"
-  };
+d3.csv("data/players_data1.csv").then(data => {
+    const playerList = d3.select("#player-list");
+    const search = d3.select("#search-bar");
+    const noPlayer = d3.select("#no-player-found");
+  
+    const positionColors = {
+        "Guard": "#8d108d",
+        "Center-Forward": "#0b5cad",
+        "Forward": "#eea513",
+        "Forward-Center": "#d23a3a",
+        "Forward-Guard": "#259e25",
+        "Guard-Forward": "#d00a8e",
+        "Center": "#026b6b"
+    };
 
   const renderPlayers = (filtered_data) => {
     playerList.html("");

@@ -5,7 +5,7 @@ import numpy as np
 
 nba_data = pd.read_csv('data/full_nba_data.csv')
 
-#here we consider only the numerical columns of ou
+#consider only the numerical columns
 cols = ["GP", "W", "L", "Min", "PTS", "FGM", "FGA", "3PM", "3PA", "FTM", 
     "FTA", "OREB", "DREB", "REB", "AST", "TOV", "STL", "BLK", "PF", 
     "FP", "+/-"]

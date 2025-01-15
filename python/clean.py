@@ -12,11 +12,13 @@ position_map = {
     'C-F': 'Center-Forward',
     'G-F': 'Guard-Forward',
     'F-G': 'Forward-Guard',
-    'F-C': 'Forward Center'
+    'F-C': 'Forward-Center'
 }
 
 joined_data['Position'] = joined_data['Position'].map(position_map).fillna(joined_data['Position'])
-
 joined_data.to_csv('data/full_nba_data.csv', index=False)
+
+players_data['Position'] = players_data['Position'].map(position_map).fillna(players_data['Position'])
+players_data.to_csv('data/players_data1.csv', index=False)
 
 print("File saved as 'data/full_nba_data.csv'")
