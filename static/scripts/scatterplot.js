@@ -1,6 +1,7 @@
 // Load PCA Data and Render Scatterplot
 let scatterplotData;
 let selection;
+let selectedPlayers = [];
 
 document.addEventListener("DOMContentLoaded", () => {
     const dropdown = document.getElementById("cluster-dropdown");

@@ -1,8 +1,8 @@
-// radarChart.js
 export const renderRadarChart = (svgElement, players, radarMetrics, positionColors) => {
-    const width = 400;
-    const height = 400;
-    const radius = Math.min(width, height) / 2 - 50;
+    // Smaller dimensions
+    const width = 350; // Reduced width
+    const height = 350; // Reduced height
+    const radius = Math.min(width, height) / 2 - 60; // Adjusted for smaller size
 
     const angleSlice = (2 * Math.PI) / radarMetrics.length;
 
