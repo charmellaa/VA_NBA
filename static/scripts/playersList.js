@@ -5,7 +5,7 @@ let fullNbaData = []; // Store data from full_nba_data.csv
 let isDefaultCleared = false; // Track if default players are cleared
 
 d3.csv("/data/playerslist.csv").then(playerListData => {
-    d3.csv("/data/full_nba_data.csv").then(fullData => {
+    d3.csv("./data/normalized_full.csv").then(fullData => {
         fullNbaData = fullData; // Save the full NBA data for radar chart usage
 
         const playerList = d3.select("#player-list");
@@ -15,7 +15,7 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
         const radarChartSvg = d3.select("#radar-chart-svg");
 
         const maxSelections = 3;
-        const radarMetrics = ["REB", "AST", "STL", "BLK", "TOV"];
+        const radarMetrics = ["PTS_n", "REB_n", "AST_n", "STL_n", "BLK_n", "TOV_n"];
         const positionColors = {
             "Guard": "#8d108d",
             "Center-Forward": "#0b5cad",

@@ -7,7 +7,7 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
     const angleSlice = (2 * Math.PI) / radarMetrics.length;
 
     const rScale = d3.scaleLinear()
-        .domain([0, d3.max(players.map(p => Math.max(...radarMetrics.map(m => +p[m]))))])
+        .domain([0, 1]) // Use global maximum
         .range([0, radius]);
 
     const radarLine = d3.lineRadial()
