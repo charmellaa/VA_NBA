@@ -1,12 +1,37 @@
 import { renderRadarChart } from './radarChart.js';
 
 let selectedPlayers = ["LeBron James", "Stephen Curry"]; // Pre-selected players
-let fullNbaData = []; // Store data from full_nba_data.csv
+let fullNbaData = [];
+let selectedPlayerName = null;
 
-// Listen for player selection changes dispatched from scatterplot.js
+// Function to fetch and display eff comparison
+const displayEffComparison = (playerName) => {
+    fetch('/get_eff_comparison', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ playerName: playerName })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.selected_player_eff && data.average_eff) {
+            const comparisonDiv = d3.select(".eff-comparison");
+            comparisonDiv.html(`
+                <h4>Efficiency:</h4>
+                <p><strong>${playerName}:</strong> ${data.selected_player_eff.toFixed(2)}</p>
+                <p><strong>Average of Other Players:</strong> ${data.average_eff.toFixed(2)}</p>
+            `);
+        } else {
+            console.error("Error fetching EFF comparison data");
+        }
+    })
+    .catch(error => console.error("Error fetching EFF comparison data:", error));
+};
+
 d3.csv("/data/playerslist.csv").then(playerListData => {
     d3.csv("./data/normalized_full.csv").then(fullData => {
-        fullNbaData = fullData; // Save the full NBA data for radar chart usage
+        fullNbaData = fullData;
 
         const playerList = d3.select("#player-list");
         const search = d3.select("#search-bar");
@@ -34,7 +59,7 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
             if (filtered_data.length > 0) {
                 noPlayer.style("display", "none");
         
-                // Sort the data to move selected players to the top
+                // move selected players to the top
                 const sortedData = filtered_data.sort((a, b) => {
                     const aSelected = selectedPlayers.includes(a.Player) ? -1 : 1;
                     const bSelected = selectedPlayers.includes(b.Player) ? -1 : 1;
@@ -61,11 +86,10 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
                             alert("You can only select up to 3 players.");
                         }
         
-                        // Update scatterplot based on the selection through custom event
                         playerList.dispatch("playerSelectionChange", { detail: { selectedPlayers } });
-                        updateDeselectButton();  // Update button state
-                        updateRadarChart(); // Update radar chart
-                        renderPlayers(playerListData); // Re-render to update the order
+                        updateDeselectButton();  
+                        updateRadarChart(); 
+                        renderPlayers(playerListData); 
                     })
                     .html(d => `
                         <div class="player-photo">
@@ -102,11 +126,23 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
         const updateRadarChart = () => {
             const selectedData = fullNbaData.filter(player => selectedPlayers.includes(player.Player));
             renderRadarChart(radarChartSvg, selectedData, radarMetrics, positionColors);
+
+            radarChartSvg.selectAll("path")
+                .on("mouseover", function(event, d) {
+                    const playerName = d[0].Player; 
+                    selectedPlayerName = playerName; 
+                    displayEffComparison(playerName); 
+                })
+                .on("mouseout", function() {
+                    const comparisonDiv = d3.select(".eff-comparison");
+                    comparisonDiv.html("Hover to see simplified Player Efficiency Rating."); 
+                });
+
         };
 
         renderPlayers(playerListData);
-        updateRadarChart(); // Show initial radar chart with selected players
-        updateDeselectButton(); // Enable deselect button for initial selections
+        updateRadarChart(); 
+        updateDeselectButton(); 
 
         search.on("input", function () {
             const searchName = this.value.toLowerCase();
@@ -122,7 +158,6 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
         d3.select("#player-list").on("playerSelectionChange2", function (event) {
             selectedPlayers = event.detail.selectedPlayers || [];
 
-            // Update the UI for selected players
             const playerEntries = d3.selectAll(".player-entry");
 
             playerEntries.each(function (d) {
@@ -130,10 +165,9 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
                 d3.select(this).style("background-color", isSelected ? "#d9f2d9" : "#f5f5f5");
             });
 
-            // Re-render the player list to move selected players to the top
             renderPlayers(playerListData);
-            updateRadarChart(); // Update radar chart with new selections
-            updateDeselectButton(); // Update deselect button
+            updateRadarChart();
+            updateDeselectButton(); 
         });
 
         deselectButton.on("click", function () {
@@ -146,5 +180,6 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
             playerList.dispatch("playerSelectionChange", { detail: { selectedPlayers } });
             updateRadarChart();
         });
+
     });
 });

@@ -17,6 +17,55 @@ cols = ["GP", "W", "L", "Min", "PTS", "FGM", "FGA", "3PM", "3PA", "FTM",
         "FTA", "OREB", "DREB", "REB", "AST", "TOV", "STL", "BLK", "PF",
         "FP", "+/-"]
 
+
+def compute_eff(player): #efficiency
+    PTS = player['PTS']
+    REB = player['REB']
+    AST = player['AST']
+    STL = player['STL']
+    BLK = player['BLK']
+    TOV = player['TOV']
+    #MIN = player['Min']
+    FGA = player['FGA']
+    FGM = player['FGM']
+    FTA = player['FTA']
+    FTM = player['FTM']
+
+
+
+    eff = (PTS + REB + AST + STL + BLK - ((FGA - FGM) + (FTA - FTM) + TOV))
+    return eff
+
+@app.route('/get_eff_comparison', methods=['POST'])
+def get_eff_comparison():
+    try:
+        player_name = request.json.get("playerName")
+        if not player_name:
+            return jsonify({"error": "playerName is required"}), 400
+
+
+        selected_player = nba_data[nba_data['Player'] == player_name]
+        if selected_player.empty:
+            return jsonify({"error": f"Player {player_name} not found"}), 400
+
+        selected_player = selected_player.iloc[0]
+
+        selected_player_eff = compute_eff(selected_player)
+    
+        other_players = nba_data[nba_data['Player'] != player_name]
+        other_players_eff = other_players.apply(compute_eff, axis=1)
+        avg_eff = other_players_eff.mean()
+
+        return jsonify({
+            "selected_player_eff": selected_player_eff,
+            "average_eff": avg_eff
+        })
+
+    except Exception as e:
+        app.logger.error(f"Error processing request: {e}")
+        return jsonify({"error": "An error occurred while processing the request"}), 500
+
+
 @app.route('/')
 def index():
     return render_template('next.html')

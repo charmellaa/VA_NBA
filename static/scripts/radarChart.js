@@ -1,5 +1,4 @@
 export const renderRadarChart = (svgElement, players, radarMetrics, positionColors) => {
-    // Map to readable metric labels
     const metricLabels = {
         PTS_n: "Points",
         REB_n: "Rebound",
@@ -9,10 +8,9 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
         TOV_n: "Turnover"
     };
 
-    // Dimensions and scaling
-    const width = 350; // Reduced width
-    const height = 350; // Reduced height
-    const radius = Math.min(width, height) / 2 - 60; // Adjusted for smaller size
+    const width = 350; 
+    const height = 350; 
+    const radius = Math.min(width, height) / 2 - 60; 
     const angleSlice = (2 * Math.PI) / radarMetrics.length;
 
     const rScale = d3.scaleLinear()
@@ -22,12 +20,12 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
     const radarLine = d3.lineRadial()
         .radius(d => rScale(d.value))
         .angle((d, i) => i * angleSlice)
-        .curve(d3.curveCardinalClosed); // Smooth cardinal curve
+        .curve(d3.curveCardinalClosed); 
 
     const g = svgElement
         .attr("width", width)
         .attr("height", height)
-        .html("") // Clear existing chart
+        .html("") 
         .append("g")
         .attr("transform", `translate(${width / 2}, ${height / 2})`);
 
@@ -43,7 +41,6 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
             .style("stroke", "lightgray")
             .style("stroke-dasharray", "3,3");
 
-        // Add reference number (value)
         g.append("text")
             .attr("x", 0)
             .attr("y", -r) // Place the label above the circle
@@ -54,7 +51,6 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
             .text(labelValue);
     }
 
-    // Draw axes
     radarMetrics.forEach((metric, i) => {
         const angle = angleSlice * i - Math.PI / 2;
         const x = Math.cos(angle) * radius;
@@ -69,11 +65,11 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
             .style("stroke-width", 1);
 
         g.append("text")
-            .attr("x", x * 1.15) // Position slightly outside the radius
+            .attr("x", x * 1.15) 
             .attr("y", y * 1.15)
             .style("text-anchor", "middle")
-            .style("font-size", "10px") // Smaller text
-            .text(metricLabels[metric]); // Use readable labels
+            .style("font-size", "10px") 
+            .text(metricLabels[metric]); 
     });
 
     // Draw data
@@ -81,6 +77,7 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
         const dataPoints = radarMetrics.map((metric, i) => ({
             axis: metric,
             value: +player[metric],
+            Player: player.Player,
             angle: angleSlice * i - Math.PI / 2
         }));
 
@@ -101,10 +98,11 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
             g.append("circle")
                 .attr("cx", x)
                 .attr("cy", y)
-                .attr("r", 3) // Radius of the dot
+                .attr("r", 3)
                 .style("fill", positionColors[player.Position])
                 .style("stroke", "#fff")
                 .style("stroke-width", 1);
         });
+
     });
 };
