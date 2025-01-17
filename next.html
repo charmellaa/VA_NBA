@@ -9,6 +9,8 @@
 <script src="{{ url_for('static', filename='scripts/playersList.js') }}" type="module" defer></script>
 <script src="{{ url_for('static', filename='scripts/scatterplot.js') }}" type="module" defer></script>
 <script src="{{ url_for('static', filename='scripts/radarChart.js') }}" type="module" defer></script>
+<script src="{{ url_for('static', filename='scripts/parallelcoords.js') }}" type="module" defer></script>
+
 
 
 
@@ -76,7 +78,8 @@
     <div class="lower-section">
       <div class="parallel-coordinates">
         <h4>Parallel Coordinates Chart</h4>
-      </div>
+        <svg id="parallel-coordinates-svg" width="800" height="400"></svg>
+    </div>
       <div class="line-chart">
         <h4>Line Chart</h4>
       </div>
