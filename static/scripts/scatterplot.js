@@ -2,6 +2,15 @@
 let scatterplotData;
 let selection;
 let selectedPlayers = ["LeBron James", "Stephen Curry"]; // Pre-selected players
+let excludedColors =  [
+    "#7b3294",
+    "#e6c600", 
+    "#008080", 
+    "#d01c8b", 
+    "#e66101", 
+    "#0571b0", 
+    "#6aab01"  
+    ]
 
 document.addEventListener("DOMContentLoaded", () => {
     const dropdown = document.getElementById("cluster-dropdown");
@@ -24,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.error(data.error);
                 alert("An error occurred while updating clusters.");
             } else {
-                renderScatterplot(data); // Redraw scatterplot with new data
+                renderScatterplot(data, excludedColors); // Redraw scatterplot with new data
             }
         })
         .catch(error => {
@@ -44,17 +53,16 @@ d3.csv("/data/pca_results.csv").then(data => {
         d.PC1 = +d.PC1; // Convert to numeric
         d.PC2 = +d.PC2;
     });
-
     scatterplotData = data;
 
     // Create Scatterplot
-    renderScatterplot(scatterplotData);
+    renderScatterplot(scatterplotData, excludedColors);
     updateScatterplot(scatterplotData, selectedPlayers);
 
     
 });
 
-function renderScatterplot(data) {
+function renderScatterplot(data, excludedColors = []) {
     const container = d3.select(".scatterplot");
     const boundingBox = container.node().getBoundingClientRect();
 
@@ -83,7 +91,15 @@ function renderScatterplot(data) {
         .domain(d3.extent(data, d => d.PC2))
         .range([height, 0]);
 
-    const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+    // Filter out excluded colors
+    const availableColors = d3.schemeCategory10.filter(color => !excludedColors.includes(color));
+    const colorScale = d3.scaleOrdinal(availableColors);
+
+     // Log the color for each unique cluster
+     const uniqueClusters = Array.from(new Set(data.map(d => d.Cluster)));
+     uniqueClusters.forEach(cluster => {
+         console.log(`Cluster ${cluster} -> Color: ${colorScale(cluster)}`);
+     });
 
     // Axes
     svg.append("g")
@@ -156,8 +172,6 @@ function renderScatterplot(data) {
     // Add legend below the scatterplot
     const legendContainer = container.append("div").attr("class", "scatterplot-legend");
 
-    const uniqueClusters = Array.from(new Set(data.map(d => d.Cluster)));
-
     uniqueClusters.forEach(cluster => {
         const legendItem = legendContainer.append("div").attr("class", "legend-item");
         legendItem.append("span")
@@ -166,7 +180,6 @@ function renderScatterplot(data) {
         legendItem.append("span").text(cluster);
     });
 }
-
 
 function updateScatterplot(data, selectedPlayers) {
 

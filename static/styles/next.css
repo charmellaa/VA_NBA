@@ -8,23 +8,6 @@ body, html {
     color: #333333; 
 }
 
-/* Legend Bar 
-.legend-bar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #ffffff; 
-    border-bottom: 1px solid #dddddd;
-    padding: 10px;
-}
-
-.legend-item {
-    display: inline-block;
-    margin: 0 10px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-} */
 
 .main-container {
     display: flex;
@@ -94,7 +77,7 @@ body, html {
     display: grid;
     grid-template-columns: 2fr 1fr; /* Allocate space for radar chart and eff box */
     grid-template-rows: auto;
-    gap: 10px; 
+    gap: 15px; 
     align-items: start; 
 }
 
@@ -244,7 +227,6 @@ body, html {
     font-size: 14px;
 }
 
-
 @media (max-width: 768px) {
     .upper-section {
         grid-template-columns: 1fr;
@@ -332,7 +314,7 @@ body, html {
 .eff-comparison {
     grid-column: 2; 
     margin: 0; 
-    padding: 10px;
+    padding: 2px;
     background-color: #f5f5f5;
     border: 1px solid #ddd;
     border-radius: 10px;

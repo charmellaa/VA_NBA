@@ -17,11 +17,80 @@ const displayEffComparison = (playerName) => {
     .then(data => {
         if (data.selected_player_eff && data.average_eff) {
             const comparisonDiv = d3.select(".eff-comparison");
-            comparisonDiv.html(`
-                <h4>Efficiency:</h4>
-                <p><strong>${playerName}:</strong> ${data.selected_player_eff.toFixed(2)}</p>
-                <p><strong>Average of Other Players:</strong> ${data.average_eff.toFixed(2)}</p>
-            `);
+            comparisonDiv.html(""); // Clear any existing content
+
+            const width = 200; // Updated chart width
+            const height = 200; // Updated chart height
+            const barWidth = 40; // Adjusted bar width
+            const maxEff = Math.max(data.selected_player_eff, data.average_eff) * 1.1; // Add 10% buffer for scaling
+            const margin = { top: 20, right: 20, bottom: 50, left: 40 };
+
+            const positionColors = {
+                "Guard": "#7b3294",
+                "Center-Forward": "#e6c600",
+                "Forward": "#6aab01",
+                "Forward-Center": "#0571b0",
+                "Forward-Guard": "#008080",
+                "Guard-Forward": "#d01c8b",
+                "Center": "#e66101"
+            };
+
+            // Determine the player's position and color
+            const playerPosition = fullNbaData.find(player => player.Player === playerName)?.Position || "Guard";
+            const playerColor = positionColors[playerPosition] || "#000000";
+
+            // Create SVG for the bar chart
+            const svg = comparisonDiv.append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+            // Scale for the bar height
+            const yScale = d3.scaleLinear()
+                .domain([0, maxEff])
+                .range([height - margin.bottom, margin.top]);
+
+            // Data for the bars
+            const barData = [
+                { label: playerName, value: data.selected_player_eff, color: playerColor },
+                { label: "Others (avg)", value: data.average_eff, color: "#b0b0b0" }
+            ];
+
+            // Render bars
+            svg.selectAll("rect")
+                .data(barData)
+                .enter()
+                .append("rect")
+                .attr("x", (d, i) => i * (barWidth + 40) + margin.left)
+                .attr("y", d => yScale(d.value))
+                .attr("width", barWidth)
+                .attr("height", d => height - margin.bottom - yScale(d.value))
+                .attr("fill", d => d.color);
+
+            // Add values above the bars
+            svg.selectAll("text.value")
+                .data(barData)
+                .enter()
+                .append("text")
+                .attr("class", "value")
+                .attr("x", (d, i) => i * (barWidth + 40) + margin.left + barWidth / 2)
+                .attr("y", d => yScale(d.value) - 5)
+                .attr("text-anchor", "middle")
+                .style("font-size", "12px")
+                .style("fill", "#333")
+                .text(d => d.value.toFixed(2));
+
+            // Add labels under the bars
+            svg.selectAll("text.label")
+                .data(barData)
+                .enter()
+                .append("text")
+                .attr("class", "label")
+                .attr("x", (d, i) => i * (barWidth + 40) + margin.left + barWidth / 2)
+                .attr("y", height - margin.bottom + 15)
+                .attr("text-anchor", "middle")
+                .style("font-size", "11px")
+                .style("fill", "#333")
+                .text(d => d.label);
         } else {
             console.error("Error fetching EFF comparison data");
         }
@@ -42,13 +111,13 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
         const maxSelections = 3;
         const radarMetrics = ["PTS_n", "REB_n", "AST_n", "STL_n", "BLK_n", "TOV_n"];
         const positionColors = {
-            "Guard": "#8d108d",
-            "Center-Forward": "#0b5cad",
-            "Forward": "#eea513",
-            "Forward-Center": "#d23a3a",
-            "Forward-Guard": "#259e25",
-            "Guard-Forward": "#d00a8e",
-            "Center": "#026b6b"
+            "Guard": "#7b3294",
+            "Center-Forward": "#e6c600",
+            "Forward": "#6aab01",
+            "Forward-Center": "#0571b0",
+            "Forward-Guard": "#008080",
+            "Guard-Forward": "#d01c8b",
+            "Center": "#e66101"
         };
 
         renderRadarChart(radarChartSvg, [], radarMetrics, positionColors);
@@ -135,7 +204,7 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
                 })
                 .on("mouseout", function() {
                     const comparisonDiv = d3.select(".eff-comparison");
-                    comparisonDiv.html("Hover to see simplified Player Efficiency Rating."); 
+                    comparisonDiv.html("Hover for player's Efficiency."); 
                 });
 
         };
