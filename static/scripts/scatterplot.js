@@ -1,7 +1,7 @@
 // Load PCA Data and Render Scatterplot
 let scatterplotData;
 let selection;
-let selectedPlayers = [];
+let selectedPlayers = ["LeBron James", "Stephen Curry"]; // Pre-selected players
 
 document.addEventListener("DOMContentLoaded", () => {
     const dropdown = document.getElementById("cluster-dropdown");
@@ -32,6 +32,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
+// changes in selected players
+d3.select("#player-list").on("playerSelectionChange", function(event) {
+    selectedPlayers = event.detail.selectedPlayers || [];
+    updateScatterplot(scatterplotData, selectedPlayers);
+});
 
 d3.csv("/data/pca_results.csv").then(data => {
     // Parse data
@@ -44,12 +49,9 @@ d3.csv("/data/pca_results.csv").then(data => {
 
     // Create Scatterplot
     renderScatterplot(scatterplotData);
+    updateScatterplot(scatterplotData, selectedPlayers);
 
-    // changes in selected players
-    d3.select("#player-list").on("playerSelectionChange", function(event) {
-        const selectedPlayers = event.detail.selectedPlayers || [];
-        updateScatterplot(scatterplotData, selectedPlayers);
-    });
+    
 });
 
 function renderScatterplot(data) {
@@ -130,9 +132,27 @@ function renderScatterplot(data) {
         })
         .on("mouseout", () => {
             d3.select(".tooltip").remove();
+        })
+        .on("click", function (event, d) {
+            // Toggle player selection
+            const playerName = d.Player;
+            if (selectedPlayers.includes(playerName)) {
+                selectedPlayers.splice(selectedPlayers.indexOf(playerName), 1);
+            } else if (selectedPlayers.length < 3) {
+                selectedPlayers.push(playerName);
+            } else {
+                alert("You can only select up to 3 players.");
+            }
+
+            // Dispatch custom event for player selection
+            d3.select("#player-list").dispatch("playerSelectionChange2", { detail: { selectedPlayers } });
+
+            // Update scatterplot highlighting
+            updateScatterplot(data, selectedPlayers);
         });
-    
+
     updateScatterplot(data, selectedPlayers);
+
     // Add legend below the scatterplot
     const legendContainer = container.append("div").attr("class", "scatterplot-legend");
 
@@ -146,6 +166,7 @@ function renderScatterplot(data) {
         legendItem.append("span").text(cluster);
     });
 }
+
 
 function updateScatterplot(data, selectedPlayers) {
 
