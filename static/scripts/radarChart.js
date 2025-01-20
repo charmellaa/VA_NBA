@@ -27,7 +27,7 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
         .attr("height", height)
         .html("") 
         .append("g")
-        .attr("transform", `translate(${width / 2}, ${height / 2})`);
+        .attr("transform", `translate(${width / 2}, ${height / 2.5})`);
 
     // Draw grid lines and reference numbers
     const levels = 5;

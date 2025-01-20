@@ -52,7 +52,7 @@ const displayEffComparison = (playerName) => {
             // Data for the bars
             const barData = [
                 { label: playerName, value: data.selected_player_eff, color: playerColor },
-                { label: "Others (avg)", value: data.average_eff, color: "#b0b0b0" }
+                { label: "Others", value: data.average_eff, color: "#b0b0b0" }
             ];
 
             // Render bars
@@ -170,8 +170,8 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
                             </p>
                             <p>Team: ${d.Team || 'Unknown Team'}<br>
                             Number: ${d.Number || 'N/A'}<br>
-                            Height: ${d.Height_inches ? d.Height_inches + ' inches' : 'Height not available'}<br>
-                            Weight: ${d.Weight_lbs ? d.Weight_lbs + ' lbs' : 'Weight not available'}<br>
+                           <!-- Height: ${d.Height_inches ? d.Height_inches + ' inches' : 'Height not available'}<br>
+                            Weight: ${d.Weight_lbs ? d.Weight_lbs + ' lbs' : 'Weight not available'}<br> -->
                         </div>`
                     );
             } else {
