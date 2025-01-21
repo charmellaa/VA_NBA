@@ -92,7 +92,7 @@ function renderScatterplot(data, excludedColors = []) {
         .range([height, 0]);
 
     // Filter out excluded colors
-    const availableColors = d3.schemeCategory10.filter(color => !excludedColors.includes(color));
+    const availableColors = d3.schemeDark2.filter(color => !excludedColors.includes(color));
     const colorScale = d3.scaleOrdinal(availableColors);
 
      // Log the color for each unique cluster

@@ -5,65 +5,65 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NBA Player Stats Visualizations</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles/next.css') }}">
-<script src="https://d3js.org/d3.v7.min.js"></script>
-<script src="{{ url_for('static', filename='scripts/playersList.js') }}" type="module" defer></script>
-<script src="{{ url_for('static', filename='scripts/scatterplot.js') }}" type="module" defer></script>
-<script src="{{ url_for('static', filename='scripts/radarChart.js') }}" type="module" defer></script>
-<script src="{{ url_for('static', filename='scripts/parallelcoords.js') }}" type="module" defer></script>
-<script src="{{ url_for('static', filename='scripts/lineChart.js') }}" type="module" defer></script>
-
-
-
-
-
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="{{ url_for('static', filename='scripts/playersList.js') }}" type="module" defer></script>
+  <script src="{{ url_for('static', filename='scripts/scatterplot.js') }}" type="module" defer></script>
+  <script src="{{ url_for('static', filename='scripts/radarChart.js') }}" type="module" defer></script>
+  <script src="{{ url_for('static', filename='scripts/parallelcoords.js') }}" type="module" defer></script>
+  <script src="{{ url_for('static', filename='scripts/lineChart.js') }}" type="module" defer></script>
 </head>
 <body class="next-page">
   <div class="main-container">
-    <div class="upper-section">
-
-
-      <div class="side-section">
-        <div class="legend">
-          <div class="legend-item">
-            <span class="legend-color" style="background-color: #7b3294;"></span> Guard
+    <!-- Left Section -->
+    <div class="left-section">
+      <div class="upper-section">
+        <div class="side-section">
+          <div class="legend">
+            <div class="legend-item">
+              <span class="legend-color" style="background-color: #7b3294;"></span> Guard
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background-color: #e66101;"></span> Center
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background-color: #6aab01;"></span> Forward
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background-color: #e6c600;"></span> Center-Forward
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background-color: #0571b0;"></span> Forward-Center
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background-color: #008080;"></span> Forward-Guard
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background-color: #d01c8b;"></span> Guard-Forward
+            </div>
           </div>
-          <div class="legend-item">
-            <span class="legend-color" style="background-color: #e66101;"></span> Center
-          </div>
-          <div class="legend-item">
-            <span class="legend-color" style="background-color: #6aab01;"></span> Forward
-          </div>
-           <div class="legend-item">
-            <span class="legend-color" style="background-color: #e6c600;"></span> Center-Forward
-          </div>
-          <div class="legend-item">
-            <span class="legend-color" style="background-color: #0571b0;"></span> Forward-Center
-          </div>
-          <div class="legend-item">
-            <span class="legend-color" style="background-color: #008080;"></span> Forward-Guard
-          </div>
-          <div class="legend-item">
-            <span class="legend-color" style="background-color: #d01c8b;"></span> Guard-Forward
+          <div class="player-list">
+            <input type="text" id="search-bar" placeholder="Enter player..." />
+            <div class="scrollable-content" id="player-list"></div>
+            <p id="no-player-found">No player found</p>
+            <button id="deselect-button" class="deselect-button" disabled>Deselect All</button>
           </div>
         </div>
-        <div class="player-list">
-          <input type="text" id="search-bar" placeholder="Enter player..." />
-          <div class="scrollable-content" id="player-list"></div>
-          <p id="no-player-found">No player found</p>
-
-          <button id="deselect-button" class="deselect-button" disabled>Deselect All</button>
-
+        <div class="radar-chart">
+          <h4>Radar Chart</h4>
+          <svg id="radar-chart-svg" width="400" height="400"></svg>
+          <div class="eff-comparison">Hover for player's Efficiency.</div>
         </div>
       </div>
-
-      <div class="radar-chart">
-        <h4>Radar Chart</h4>
-        <svg id="radar-chart-svg" width="400" height="400"></svg>
-        <div class="eff-comparison">
-          Hover for player's Efficiency.
+      <div class="lower-section">
+        <div class="parallel-coordinates">
+          <h4>Parallel Coordinates Chart</h4>
+          <svg id="parallel-coordinates-svg" width="800" height="400"></svg>
+        </div>
       </div>
-      
-      </div>
+    </div>
+  
+    <!-- Right Section -->
+    <div class="right-section">
       <div class="scatterplot">
         <h4>Scatterplot</h4>
         <div>
@@ -75,19 +75,12 @@
           </select>
         </div>
       </div>
-
-
-
-    </div>
-    <div class="lower-section">
-      <div class="parallel-coordinates">
-        <h4>Parallel Coordinates Chart</h4>
-        <svg id="parallel-coordinates-svg" width="800" height="400"></svg>
-    </div>
       <div class="line-chart">
         <h4>Line Chart</h4>
       </div>
     </div>
   </div>
+  
+
 </body>
 </html>
