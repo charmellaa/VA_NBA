@@ -96,6 +96,16 @@ document.addEventListener("DOMContentLoaded", () => {
           .domain(axes)
           .range([0, width])
           .padding(0.5);
+      
+      const tooltip = d3.select("body")
+          .append("div")
+          .style("position", "absolute")
+          .style("background", "rgba(0, 0, 0, 0.8)")
+          .style("color", "#fff")
+          .style("padding", "5px")
+          .style("border-radius", "5px")
+          .style("display", "none");
+
 
           const updateChart = () => {
             // console.log(axes);
@@ -112,7 +122,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
         };
         
-
       const dragBehavior = d3.drag()
           .on("start", function (event, axis) {
               d3.select(this).classed("dragging", true);
@@ -183,11 +192,35 @@ document.addEventListener("DOMContentLoaded", () => {
               .attr("stroke", d => positionColors[d["Position"]] || "#000")
               .attr("stroke-width", 1)
               .attr("opacity", 0.8)
-              .on("mouseover", function () {
-                  d3.select(this).attr("stroke-width", 2).attr("opacity", 1);
-              })
+              .on("mouseover", function (event, d) {
+                // Highlight the selected line
+                d3.select(this)
+                    .attr("stroke-width", 7)
+                    .attr("opacity", 1);
+
+                // Dim other lines
+                chartGroup.selectAll(".player-line")
+                    .filter(line => line !== d)
+                    .attr("opacity", 0.12);
+
+                // Show tooltip
+                const tooltipContent = `<strong>${d.Player}</strong><br>` +
+                    axes.map(axis => `${axis}: ${d[axis]}`).join("<br>");
+                tooltip.style("display", "block")
+                    .html(tooltipContent)
+                    .style("left", `${event.pageX + 10}px`)
+                    .style("top", `${event.pageY - 20}px`);
+            })
               .on("mouseout", function () {
-                  d3.select(this).attr("stroke-width", 1).attr("opacity", 0.8);
+                d3.select(this)
+                .attr("stroke-width", 1)
+                .attr("opacity", 0.8);
+
+            chartGroup.selectAll(".player-line")
+                .attr("opacity", 0.8);
+
+            // Hide tooltip
+            tooltip.style("display", "none");
               });
       };
 
