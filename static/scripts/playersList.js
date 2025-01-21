@@ -4,6 +4,13 @@ let selectedPlayers = ["LeBron James", "Stephen Curry"]; // Pre-selected players
 let fullNbaData = [];
 let selectedPlayerName = null;
 
+const updateParallelCoordinates = () => {
+    const event = new CustomEvent("updateSelectedPlayers", { detail: { selectedPlayers } });
+    document.dispatchEvent(event);
+    //console.log("Dispatching selectedPlayers:", selectedPlayers);
+
+};
+
 // Function to fetch and display eff comparison
 const displayEffComparison = (playerName) => {
     fetch('/get_eff_comparison', {
@@ -158,6 +165,8 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
                         playerList.dispatch("playerSelectionChange", { detail: { selectedPlayers } });
                         updateDeselectButton();  
                         updateRadarChart(); 
+                        updateParallelCoordinates(); // Notify parallel coordinates chart
+
                         renderPlayers(playerListData); 
                     })
                     .html(d => `
@@ -178,6 +187,8 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
                 noPlayer.style("display", "block");
             }
         };
+
+        
         const updateDeselectButton = () => {
             const selectedCount = selectedPlayers.length;
 
@@ -210,6 +221,7 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
         };
 
         renderPlayers(playerListData);
+        updateParallelCoordinates(); // Notify parallel coordinates chart
         updateRadarChart(); 
         updateDeselectButton(); 
 
@@ -237,6 +249,8 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
             renderPlayers(playerListData);
             updateRadarChart();
             updateDeselectButton(); 
+            updateParallelCoordinates(); // Notify parallel coordinates chart
+
         });
 
         deselectButton.on("click", function () {
@@ -248,6 +262,9 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
             updateDeselectButton();
             playerList.dispatch("playerSelectionChange", { detail: { selectedPlayers } });
             updateRadarChart();
+            updateParallelCoordinates(); // Notify parallel coordinates chart
+
+
         });
 
     });

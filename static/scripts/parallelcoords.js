@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "Guard-Forward": "#d01c8b",
       "Center": "#e66101"
   };
+  
 
   const teamNameMap = {
       "ATL": "ATL - Atlanta Hawks",
@@ -223,9 +224,18 @@ document.addEventListener("DOMContentLoaded", () => {
             tooltip.style("display", "none");
               });
       };
+    
 
       // Draw initial lines
       drawLines(data);
+
+      document.addEventListener("updateSelectedPlayers", (event) => {
+        const selectedPlayers = event.detail.selectedPlayers;
+    
+        chartGroup.selectAll(".player-line")
+            .attr("opacity", d => selectedPlayers.includes(d.Player) ? 1 : 0.12) // Highlight selected players
+            .attr("stroke-width", d => selectedPlayers.includes(d.Player) ? 3 : 1); // Increase stroke for selected players
+    });
 
       dropdown.on("change", function () {
           const selectedTeam = this.value;
@@ -236,6 +246,8 @@ document.addEventListener("DOMContentLoaded", () => {
               drawLines(filteredData);
           }
       });
+
+
   }).catch(error => {
       console.error("Error loading data:", error);
   });
