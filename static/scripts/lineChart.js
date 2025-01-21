@@ -48,7 +48,7 @@ d3.csv('data/top_pies.csv').then(data => {
   svg
     .append('text')
     .attr('x', width / 2)
-    .attr('y', height + margin.bottom - 10)
+    .attr('y', height + margin.bottom)
     .attr('text-anchor', 'middle')
     .text('Season')
     .style('font-size', '14px');
@@ -84,14 +84,14 @@ d3.csv('data/top_pies.csv').then(data => {
 
     svg
       .append('circle')
-      .attr('cx', width - 100)
+      .attr('cx', width - 120)
       .attr('cy', players.indexOf(player) * 20)
       .attr('r', 5)
       .style('fill', colorScale(player));
 
     svg
       .append('text')
-      .attr('x', width - 90)
+      .attr('x', width -110)
       .attr('y', players.indexOf(player) * 20 + 5)
       .text(player)
       .style('font-size', '12px')
