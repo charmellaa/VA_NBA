@@ -1,8 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Data file path
   const dataFilePath = "/data/full_nba_data_parallel.csv";
 
-  // Color mapping for positions
   const positionColors = {
       "Guard": "#7b3294",
       "Center-Forward": "#e6c600",
@@ -13,49 +11,47 @@ document.addEventListener("DOMContentLoaded", () => {
       "Center": "#e66101"
   };
 
-  // Mapping of team abbreviations to full names
   const teamNameMap = {
-      "ATL": "Atlanta Hawks",
-      "BOS": "Boston Celtics",
-      "BKN": "Brooklyn Nets",
-      "CHA": "Charlotte Hornets",
-      "CHI": "Chicago Bulls",
-      "CLE": "Cleveland Cavaliers",
-      "DAL": "Dallas Mavericks",
-      "DEN": "Denver Nuggets",
-      "DET": "Detroit Pistons",
-      "GSW": "Golden State Warriors",
-      "HOU": "Houston Rockets",
-      "IND": "Indiana Pacers",
-      "LAC": "Los Angeles Clippers",
-      "LAL": "Los Angeles Lakers",
-      "MEM": "Memphis Grizzlies",
-      "MIA": "Miami Heat",
-      "MIL": "Milwaukee Bucks",
-      "MIN": "Minnesota Timberwolves",
-      "NOP": "New Orleans Pelicans",
-      "NYK": "New York Knicks",
-      "OKC": "Oklahoma City Thunder",
-      "ORL": "Orlando Magic",
-      "PHI": "Philadelphia 76ers",
-      "PHX": "Phoenix Suns",
-      "POR": "Portland Trail Blazers",
-      "SAC": "Sacramento Kings",
-      "SAS": "San Antonio Spurs",
-      "TOR": "Toronto Raptors",
-      "UTA": "Utah Jazz",
-      "WAS": "Washington Wizards"
+      "ATL": "ATL - Atlanta Hawks",
+      "BOS": "BOS - Boston Celtics",
+      "BKN": "BKN - Brooklyn Nets",
+      "CHA": "CHA - Charlotte Hornets",
+      "CHI": "CHI - Chicago Bulls",
+      "CLE": "CLE - Cleveland Cavaliers",
+      "DAL": "DAL - Dallas Mavericks",
+      "DEN": "DEN - Denver Nuggets",
+      "DET": "DET - Detroit Pistons",
+      "GSW": "GSW - Golden State Warriors",
+      "HOU": "HOU - Houston Rockets",
+      "IND": "IND - Indiana Pacers",
+      "LAC": "LAC - Los Angeles Clippers",
+      "LAL": "LAL - Los Angeles Lakers",
+      "MEM": "MEM - Memphis Grizzlies",
+      "MIA": "MIA - Miami Heat",
+      "MIL": "MIL - Milwaukee Bucks",
+      "MIN": "MIN - Minnesota Timberwolves",
+      "NOP": "NOP - New Orleans Pelicans",
+      "NYK": "NYK - New York Knicks",
+      "OKC": "OKC - Oklahoma City Thunder",
+      "ORL": "ORL - Orlando Magic",
+      "PHI": "PHI - Philadelphia 76ers",
+      "PHX": "PHX - Phoenix Suns",
+      "POR": "POR - Portland Trail Blazers",
+      "SAC": "SAC - Sacramento Kings",
+      "SAS": "SAS - San Antonio Spurs",
+      "TOR": "TOR - Toronto Raptors",
+      "UTA": "UTA - Utah Jazz",
+      "WAS": "WAS - Washington Wizards"
   };
-  
-  // Load data
-  d3.csv(dataFilePath).then(data => {
-      // Parse numerical columns and define the axes
-      const axes = ["Age", "Height_inches", "Weight_lbs", "FG%", "3P%", "FT%", "FGA", "3PA", "FTA"];
 
-      // Extract unique teams
+  d3.csv(dataFilePath).then(data => {
+      let axes = ["Age", "Height_inches", "Weight_lbs", "FG%", "3P%", "FT%", "FGA", "3PA", "FTA"];
+
+    // console.log("Valid axes:", axes); 
+
       const teams = [...new Set(data.map(d => d.Team))];
 
-      // Add dropdown for team selection
+      // dropdown for team selection
       const dropdown = d3.select(".parallel-coordinates")
           .insert("select", "svg#parallel-coordinates-svg")
           .attr("id", "team-dropdown")
@@ -67,11 +63,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       teams.forEach(teamAbbreviation => {
           dropdown.append("option")
-              .attr("value", teamAbbreviation) // Use the abbreviation for filtering
-              .text(teamNameMap[teamAbbreviation]); // Display the full team name
+              .attr("value", teamAbbreviation)
+              .text(teamNameMap[teamAbbreviation]);
       });
 
-      // Select the container and dynamically set dimensions
       const container = d3.select(".parallel-coordinates");
       const containerWidth = container.node().clientWidth;
       const containerHeight = container.node().clientHeight;
@@ -88,7 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const chartGroup = svg.append("g")
           .attr("transform", `translate(${margin.left},${margin.top})`);
 
-      // Scales for each axis
       const yScales = {};
       axes.forEach(axis => {
           const minValue = d3.min(data, d => +d[axis]);
@@ -98,28 +92,81 @@ document.addEventListener("DOMContentLoaded", () => {
               .range([height, 0]);
       });
 
-      // X scale
       const xScale = d3.scalePoint()
           .domain(axes)
-          .range([0, width]);
+          .range([0, width])
+          .padding(0.5);
 
-      // Add axes to the chart
+          const updateChart = () => {
+            // console.log(axes);
+            chartGroup.selectAll(".player-line")
+                .transition()
+                .duration(750)
+                .attr("d", d => {
+                    return d3.line()(
+                        axes.map(axis => {
+                            const scale = yScales[axis];
+                            return scale ? [xScale(axis), scale(+d[axis])] : [xScale(axis), 0];
+                        })
+                    );
+                });
+        };
+        
+
+      const dragBehavior = d3.drag()
+          .on("start", function (event, axis) {
+              d3.select(this).classed("dragging", true);
+          })
+          .on("drag", function (event, axis) {
+              d3.select(this)
+                  .attr("transform", `translate(${event.x}, 0)`); 
+          })
+          .on("end", function (event, axis) {
+              d3.select(this).classed("dragging", false);
+              // console.log("axis being dragged "+axis);
+
+              // Calculate the new position of the dragged axis
+              const oldIndex = axes.indexOf(axis);
+              const newIndex = Math.round((event.x - xScale(axis)) / xScale.step() + oldIndex);
+
+              const ind = Math.max(0, Math.min(newIndex, axes.length - 1));
+
+              if (ind !== oldIndex) {
+                  axes.splice(oldIndex, 1); // Remove from the old position
+                  axes.splice(ind, 0, axis); // Insert at the new position
+              }
+
+              // Update xScale with the new order
+              xScale.domain(axes);
+
+              // Update axis positions
+              chartGroup.selectAll(".axis")
+                  .transition()
+                  .duration(750)
+                  .attr("transform", d => `translate(${xScale(d)}, 0)`);
+
+              // Update the chart to reflect the new axis positions
+              updateChart();
+          });
+
       axes.forEach(axis => {
           const axisGroup = chartGroup.append("g")
-              .attr("transform", `translate(${xScale(axis)},0)`);
+              .attr("class", "axis")
+              .attr("transform", `translate(${xScale(axis)}, 0)`)
+              .data([axis])
+              .call(dragBehavior);
 
-          const axisGenerator = d3.axisLeft(yScales[axis]).ticks(5);
-
-          axisGroup.call(axisGenerator);
           axisGroup.append("text")
               .attr("y", -10)
               .attr("text-anchor", "middle")
               .attr("fill", "black")
               .text(axis);
+
+          axisGroup.call(d3.axisLeft(yScales[axis]).ticks(5));
       });
 
-      // Draw lines for each player
       const drawLines = (filteredData) => {
+        // console.log(yScales);
           chartGroup.selectAll(".player-line").remove();
 
           chartGroup.selectAll(".player-line")
@@ -129,7 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
               .attr("class", "player-line")
               .attr("d", d => {
                   return d3.line()(
-                      axes.map(axis => [xScale(axis), yScales[axis](d[axis])])
+                      axes.map(axis => [xScale(axis), yScales[axis](+d[axis])])
                   );
               })
               .attr("fill", "none")
@@ -144,13 +191,11 @@ document.addEventListener("DOMContentLoaded", () => {
               });
       };
 
-      // Draw initial lines (all players)
+      // Draw initial lines
       drawLines(data);
 
-      // Add event listener for dropdown change
       dropdown.on("change", function () {
           const selectedTeam = this.value;
-          console.log(selectedTeam);
           if (selectedTeam === "all") {
               drawLines(data);
           } else {
