@@ -10,6 +10,8 @@ document.addEventListener("DOMContentLoaded", () => {
       "Guard-Forward": "#d01c8b",
       "Center": "#e66101"
   };
+  let selectedPlayers = ["LeBron James", "Stephen Curry"]; // Pre-selected players
+
   
 
   const teamNameMap = {
@@ -198,12 +200,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 d3.select(this)
                     .attr("stroke-width", 7)
                     .attr("opacity", 1);
-
-                // Dim other lines
+            
+                // Dim other lines, except those already highlighted by selection
                 chartGroup.selectAll(".player-line")
-                    .filter(line => line !== d)
+                    .filter(line => line !== d && !selectedPlayers.includes(line.Player))
                     .attr("opacity", 0.12);
-
+            
                 // Show tooltip
                 const tooltipContent = `<strong>${d.Player}</strong><br>` +
                     axes.map(axis => `${axis}: ${d[axis]}`).join("<br>");
@@ -212,17 +214,22 @@ document.addEventListener("DOMContentLoaded", () => {
                     .style("left", `${event.pageX + 10}px`)
                     .style("top", `${event.pageY - 20}px`);
             })
-              .on("mouseout", function () {
-                d3.select(this)
-                .attr("stroke-width", 1)
-                .attr("opacity", 0.8);
-
-            chartGroup.selectAll(".player-line")
-                .attr("opacity", 0.8);
-
-            // Hide tooltip
-            tooltip.style("display", "none");
-              });
+            .on("mouseout", function (event, d) {
+              // Restore this line's appearance
+              d3.select(this)
+                  .attr("stroke-width", selectedPlayers.includes(d.Player) ? 7 : 1)
+                  .attr("opacity", selectedPlayers.includes(d.Player) ? 1 : 0.12);
+          
+              // Restore all other lines' appearance
+              chartGroup.selectAll(".player-line")
+                  .attr("opacity", line => selectedPlayers.includes(line.Player) ? 1 : 0.12)
+                  .attr("stroke-width", line => selectedPlayers.includes(line.Player) ? 7 : 1);
+          
+              // Hide tooltip
+              tooltip.style("display", "none");
+          });
+          
+            
       };
     
 
@@ -234,7 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
         chartGroup.selectAll(".player-line")
             .attr("opacity", d => selectedPlayers.includes(d.Player) ? 1 : 0.12) // Highlight selected players
-            .attr("stroke-width", d => selectedPlayers.includes(d.Player) ? 3 : 1); // Increase stroke for selected players
+            .attr("stroke-width", d => selectedPlayers.includes(d.Player) ? 7 : 1); // Increase stroke for selected players
     });
 
       dropdown.on("change", function () {
