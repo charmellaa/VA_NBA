@@ -68,7 +68,7 @@ d3.csv('data/top_pies.csv').then(data => {
     .y(d => yScale(d.PIE));
 
   const colorScale = d3
-    .scaleOrdinal(d3.schemeAccent)
+    .scaleOrdinal(d3.schemePastel1)
     .domain(players);
 
   players.forEach(player => {
