@@ -10,9 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "Guard-Forward": "#d01c8b",
       "Center": "#e66101"
   };
-  let selectedPlayers = []; // Pre-selected players
-
-  
+  let selectedPlayers = [];
 
   const teamNameMap = {
       "ATL": "ATL - Atlanta Hawks",
@@ -107,6 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
           .style("color", "#fff")
           .style("padding", "5px")
           .style("border-radius", "5px")
+          .style("font-size", "11px")
           .style("display", "none");
 
 
@@ -222,9 +221,11 @@ document.addEventListener("DOMContentLoaded", () => {
                   .attr("opacity", selectedPlayers.includes(d.Player) ? 1 : 0.12);
           
               // Restore all other lines' appearance
-              chartGroup.selectAll(".player-line")
-                  .attr("opacity", line => selectedPlayers.includes(line.Player) ? 1 : 0.12)
-                  .attr("stroke-width", line => selectedPlayers.includes(line.Player) ? 7 : 1);
+              // Reapply highlighting for selected players
+      const noPlayersSelected1 = selectedPlayers.length === 0;
+      chartGroup.selectAll(".player-line")
+          .attr("opacity", d => noPlayersSelected1 ? 0.8 : (selectedPlayers.includes(d.Player) ? 1 : 0.12)) // Default styling
+          .attr("stroke-width", d => noPlayersSelected1 ? 1 : (selectedPlayers.includes(d.Player) ? 7 : 1)); // Thicker stroke for selected
           
               // Hide tooltip
               tooltip.style("display", "none");
@@ -232,7 +233,6 @@ document.addEventListener("DOMContentLoaded", () => {
           
             
       };
-    
 
       // Draw initial lines
       drawLines(data);
@@ -240,20 +240,30 @@ document.addEventListener("DOMContentLoaded", () => {
       document.addEventListener("updateSelectedPlayers", (event) => {
         selectedPlayers = event.detail.selectedPlayers;
     
-        chartGroup.selectAll(".player-line")
-            .attr("opacity", d => selectedPlayers.includes(d.Player) ? 1 : 0.12) // Highlight selected players
-            .attr("stroke-width", d => selectedPlayers.includes(d.Player) ? 7 : 1); // Increase stroke for selected players
+         chartGroup.selectAll(".player-line")
+        .attr("opacity", d => selectedPlayers.length === 0 ? 0.8 : (selectedPlayers.includes(d.Player) ? 1 : 0.12)) // Highlight selected players or revert to default
+        .attr("stroke-width", d => selectedPlayers.length === 0 ? 1 : (selectedPlayers.includes(d.Player) ? 7 : 1)); // Adjust stroke width accordingly
     });
 
-      dropdown.on("change", function () {
-          const selectedTeam = this.value;
-          if (selectedTeam === "all") {
-              drawLines(data);
-          } else {
-              const filteredData = data.filter(d => d.Team === selectedTeam);
-              drawLines(filteredData);
-          }
-      });
+    dropdown.on("change", function () {
+      const selectedTeam = this.value;
+      let filteredData;
+  
+      if (selectedTeam === "all") {
+          filteredData = data; // Use all data if "All Teams" is selected
+      } else {
+          filteredData = data.filter(d => d.Team === selectedTeam); // Filter by team
+      }
+  
+      drawLines(filteredData); // Redraw lines based on team selection
+  
+      // Reapply highlighting for selected players
+      const noPlayersSelected = selectedPlayers.length === 0;
+      chartGroup.selectAll(".player-line")
+          .attr("opacity", d => noPlayersSelected ? 0.8 : (selectedPlayers.includes(d.Player) ? 1 : 0.12)) // Default styling
+          .attr("stroke-width", d => noPlayersSelected ? 1 : (selectedPlayers.includes(d.Player) ? 7 : 1)); // Thicker stroke for selected
+  });
+  
 
 
   }).catch(error => {
