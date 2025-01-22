@@ -170,15 +170,27 @@ function renderScatterplot(data, excludedColors = []) {
     updateScatterplot(data, selectedPlayers);
 
     // Add legend below the scatterplot
-    const legendContainer = container.append("div").attr("class", "scatterplot-legend");
+    // Add legend below the scatterplot
+// Add legend below the scatterplot
+const legendContainer = container.append("div").attr("class", "scatterplot-legend");
 
-    uniqueClusters.forEach(cluster => {
-        const legendItem = legendContainer.append("div").attr("class", "legend-item");
-        legendItem.append("span")
-            .attr("class", "legend-color")
-            .style("background-color", colorScale(cluster));
-        legendItem.append("span").text(cluster);
-    });
+// Sort uniqueClusters array to ensure labels are in order
+const sortedClusters = uniqueClusters.sort((a, b) => {
+    // Extract numeric value from "Cluster X"
+    const clusterA = parseInt(a.replace('Cluster ', ''), 10);
+    const clusterB = parseInt(b.replace('Cluster ', ''), 10);
+    return clusterA - clusterB; // Sort numerically
+});
+
+sortedClusters.forEach(cluster => {
+    const legendItem = legendContainer.append("div").attr("class", "legend-item");
+    legendItem.append("span")
+        .attr("class", "legend-color")
+        .style("background-color", colorScale(cluster));
+    legendItem.append("span").text(cluster);
+});
+
+
 }
 
 function updateScatterplot(data, selectedPlayers) {

@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "Guard-Forward": "#d01c8b",
       "Center": "#e66101"
   };
-  let selectedPlayers = ["LeBron James", "Stephen Curry"]; // Pre-selected players
+  let selectedPlayers = []; // Pre-selected players
 
   
 
@@ -196,6 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
               .attr("stroke-width", 1)
               .attr("opacity", 0.8)
               .on("mouseover", function (event, d) {
+                console.log(selectedPlayers);
                 // Highlight the selected line
                 d3.select(this)
                     .attr("stroke-width", 7)
@@ -237,7 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
       drawLines(data);
 
       document.addEventListener("updateSelectedPlayers", (event) => {
-        const selectedPlayers = event.detail.selectedPlayers;
+        selectedPlayers = event.detail.selectedPlayers;
     
         chartGroup.selectAll(".player-line")
             .attr("opacity", d => selectedPlayers.includes(d.Player) ? 1 : 0.12) // Highlight selected players

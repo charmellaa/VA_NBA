@@ -212,10 +212,16 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
                     const playerName = d[0].Player; 
                     selectedPlayerName = playerName; 
                     displayEffComparison(playerName); 
+                    d3.select(this)
+                    .style("fill-opacity", 0.4)
+                    .style("stroke-width", 3);
                 })
                 .on("mouseout", function() {
                     const comparisonDiv = d3.select(".eff-comparison");
                     comparisonDiv.html("Hover for player's Efficiency."); 
+                    d3.select(this)
+                    .style("fill-opacity", 0.2)
+                    .style("stroke-width", 2);
                 });
 
         };

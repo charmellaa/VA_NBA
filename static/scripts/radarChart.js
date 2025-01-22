@@ -22,10 +22,21 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
         .angle((d, i) => i * angleSlice)
         .curve(d3.curveCardinalClosed); 
 
-    const g = svgElement
+    // Define zoom behavior
+    const zoom = d3.zoom()
+        .scaleExtent([1, 5]) // Allow zooming between 1x and 5x
+        .on("zoom", (event) => {
+            chartGroup.attr("transform", event.transform); // Apply zoom transform
+        });
+
+    // Clear and setup the SVG
+    svgElement
         .attr("width", width)
         .attr("height", height)
-        .html("") 
+        .html("") // Clear existing content
+        .call(zoom); // Attach zoom behavior
+
+    const chartGroup = svgElement
         .append("g")
         .attr("transform", `translate(${width / 2}, ${height / 2.5})`);
 
@@ -35,13 +46,13 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
         const r = (radius / levels) * (level + 1);
         const labelValue = ((level + 1) / levels).toFixed(1);
 
-        g.append("circle")
+        chartGroup.append("circle")
             .attr("r", r)
             .style("fill", "none")
             .style("stroke", "lightgray")
             .style("stroke-dasharray", "3,3");
 
-        g.append("text")
+        chartGroup.append("text")
             .attr("x", 0)
             .attr("y", -r) // Place the label above the circle
             .attr("dy", "-0.3em")
@@ -56,7 +67,7 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
         const x = Math.cos(angle) * radius;
         const y = Math.sin(angle) * radius;
 
-        g.append("line")
+        chartGroup.append("line")
             .attr("x1", 0)
             .attr("y1", 0)
             .attr("x2", x)
@@ -64,7 +75,7 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
             .style("stroke", "lightgray")
             .style("stroke-width", 1);
 
-        g.append("text")
+        chartGroup.append("text")
             .attr("x", x * 1.15) 
             .attr("y", y * 1.15)
             .style("text-anchor", "middle")
@@ -82,7 +93,7 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
         }));
 
         // Draw the radar area
-        g.append("path")
+        const path = chartGroup.append("path")
             .datum(dataPoints)
             .attr("d", radarLine)
             .style("fill", positionColors[player.Position])
@@ -90,12 +101,25 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
             .style("stroke", positionColors[player.Position])
             .style("stroke-width", 2);
 
+        // Add hover events
+        path
+            .on("mouseover", function () {
+                d3.select(this)
+                    .style("fill-opacity", 0.4)
+                    .style("stroke-width", 3);
+            })
+            .on("mouseout", function () {
+                d3.select(this)
+                    .style("fill-opacity", 0.2)
+                    .style("stroke-width", 2);
+            });
+
         // Draw dots at intersections
         dataPoints.forEach(point => {
             const x = Math.cos(point.angle) * rScale(point.value);
             const y = Math.sin(point.angle) * rScale(point.value);
 
-            g.append("circle")
+            chartGroup.append("circle")
                 .attr("cx", x)
                 .attr("cy", y)
                 .attr("r", 3)
@@ -103,6 +127,5 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
                 .style("stroke", "#fff")
                 .style("stroke-width", 1);
         });
-
     });
 };
