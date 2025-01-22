@@ -1,6 +1,6 @@
 const margin = { top: 20, right: 30, bottom: 50, left: 50 };
-const width = 500 - margin.left - margin.right;
-const height = 340 - margin.top - margin.bottom;
+const width = 465 - margin.left - margin.right;
+const height = 330 - margin.top - margin.bottom;
 
 // Append SVG 
 const svg = d3
@@ -12,6 +12,12 @@ const svg = d3
   .attr('transform', `translate(${margin.left},${margin.top})`);
 
 let tooltipGroup;
+svg.on('click', function () {
+  if (tooltipGroup) {
+    tooltipGroup.remove();
+    tooltipGroup = null;
+  }
+});
 
 d3.csv('data/top_pies.csv').then(data => {
   const players = Array.from(new Set(data.map(d => d.Player)));
@@ -28,11 +34,14 @@ d3.csv('data/top_pies.csv').then(data => {
     .domain(seasons)
     .range([0, width]);
 
-  const yScale = d3
-    .scaleLinear()
-    .domain([0, d3.max(data, d => d.PIE) + 5])
-    .nice()
-    .range([height, 0]);
+    const minPIE = d3.min(data, d => d.PIE); // Find the minimum PIE value in the data
+    const maxPIE = d3.max(data, d => d.PIE); // Find the maximum PIE value in the data
+    
+    const yScale = d3
+      .scaleLinear()
+      .domain([Math.max(0, minPIE - 5), maxPIE + 5]) // Adjust the domain to start slightly below the minPIE
+      .nice()
+      .range([height, 0]);
 
   const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
   const yAxis = d3.axisLeft(yScale);
@@ -78,7 +87,7 @@ svg.on('click', function () {
     .y(d => yScale(d.PIE));
 
   const colorScale = d3
-    .scaleOrdinal(d3.schemePastel1)
+    .scaleOrdinal(d3.schemeSet1)
     .domain(players);
 
   players.forEach(player => {
@@ -95,81 +104,99 @@ svg.on('click', function () {
   // Add click event for each player line
   path.on('click', function (event, d) {
     const playerName = d[0].Player; // `d` contains data for the selected player
+    
+    // Get user-defined thresholds
+    const growthThreshold = parseFloat(document.getElementById('growth-threshold').value);
+    const volatilityThreshold = parseFloat(document.getElementById('volatility-threshold').value);
 
     // Remove existing tooltip if any
     if (tooltipGroup) tooltipGroup.remove();
 
     // Fetch analysis data
-    fetch('/analyze_trends', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ playerName })
+  fetch('/analyze_trends', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ 
+      playerName, 
+      growthThreshold, 
+      volatilityThreshold 
     })
-      .then(response => response.json())
-      .then(data => {
-        if (data.error) {
-          alert(data.error);
-        } else {
-          // Create a tooltip group
-          tooltipGroup = svg.append('g')
-            .attr('class', 'tooltip-group')
-            .attr('transform', `translate(${event.offsetX}, ${event.offsetY})`);
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        alert(data.error);
+      } else {
+        // Create a tooltip group
+        tooltipGroup = svg.append('g')
+          .attr('class', 'tooltip-group')
+          .attr('transform', `translate(${event.offsetX}, ${event.offsetY})`);
 
-          // Tooltip rectangle
-          tooltipGroup.append('rect')
-            .attr('width', 200)
-            .attr('height', 100)
-            .attr('x', 10)
-            .attr('y', -10)
-            .attr('rx', 5)
-            .attr('ry', 5)
-            .attr('fill', 'white')
-            .attr('stroke', 'black')
-            .attr('stroke-width', 1)
-            .style('pointer-events', 'none'); // Prevent interaction with tooltip
+        // Tooltip rectangle
+        tooltipGroup.append('rect')
+          .attr('width', 200)
+          .attr('height', 100)
+          .attr('x', 10)
+          .attr('y', -10)
+          .attr('rx', 5)
+          .attr('ry', 5)
+          .attr('fill', 'white')
+          .attr('stroke', 'black')
+          .attr('stroke-width', 1)
+          .style('pointer-events', 'none'); // Prevent interaction with tooltip
 
-          // Tooltip text
-          const text = tooltipGroup.append('text')
-            .attr('x', 20)
-            .attr('y', 10)
-            .style('font-size', '12px')
-            .style('fill', 'black');
+        // Tooltip text
+        const text = tooltipGroup.append('text')
+          .attr('x', 20)
+          .attr('y', 10)
+          .style('font-size', '12px')
+          .style('fill', 'black');
 
-          text.append('tspan')
-            .text(`${playerName}`)
-            .attr('x', 20)
-            .attr('dy', '1.2em');
-          text.append('tspan')
-            .text(`Growth Rate: ${data.avg_growth_rate.toFixed(2)}%`)
-            .attr('x', 20)
-            .attr('dy', '1.2em');
-          text.append('tspan')
-            .text(`Trend: ${data.trend}`)
-            .attr('x', 20)
-            .attr('dy', '1.2em');
-          text.append('tspan')
-            .text(`Volatility: ${data.std_dev.toFixed(2)}`)
-            .attr('x', 20)
-            .attr('dy', '1.2em');
-        }
-      })
-      .catch(error => console.error('Error:', error));
+        text.append('tspan')
+          .text(`${playerName}`)
+          .style('font-weight', 'bold')
+          .attr('x', 20)
+          .attr('dy', '1.2em');
+        text.append('tspan')
+          .text(`${data.trend}`)
+          .style('font-weight', 'bold')
+          .attr('x', 20)
+          .attr('dy', '1.2em');
+        text.append('tspan')
+          .text(`Growth Rate: ${data.avg_growth_rate.toFixed(2)}%`)
+          .attr('x', 20)
+          .attr('dy', '1.2em');
+        text.append('tspan')
+          .text(`Volatility: ${data.std_dev.toFixed(2)}`)
+          .attr('x', 20)
+          .attr('dy', '1.2em');
+      }
     })
+    .catch(error => console.error('Error:', error));
+});
+
+
+    // Position circles and text with adjusted margins
+    const legendMargin = -4; // Set a margin value (you can adjust as needed)
+    const legendXPosition = width - 120;
+    const legendYPosition = players.indexOf(player) * (20 + legendMargin);
 
     svg
       .append('circle')
-      .attr('cx', width - 120)
-      .attr('cy', players.indexOf(player) * 20)
+      .attr('cx', legendXPosition)
+      .attr('cy', legendYPosition)
       .attr('r', 5)
       .style('fill', colorScale(player));
 
     svg
       .append('text')
-      .attr('x', width -110)
-      .attr('y', players.indexOf(player) * 20 + 5)
+      .attr('x', legendXPosition + 10) // Adds space between the circle and text
+      .attr('y', legendYPosition + 5)
       .text(player)
-      .style('font-size', '12px')
+      .style('font-size', '10px')
       .style('text-anchor', 'start');
+  
+      
 
   });
 });

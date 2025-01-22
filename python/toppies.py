@@ -1,28 +1,41 @@
 import pandas as pd
 
-# Load the CSV files
-shai = pd.read_csv('data/shai.csv')
-giannis = pd.read_csv('data/giannis.csv')
-jokic = pd.read_csv('data/jokic.csv')
+# List of players and their respective CSV file names
+players = {
+    'Shai Gilgeous-Alexander': 'data/shai.csv',
+    'Giannis Antetokounmpo': 'data/giannis.csv',
+    'Nikola Jokić': 'data/jokic.csv',
+    'LaMelo Ball': 'data/lamelo.csv',
+    'Jayson Tatum': 'data/tatum.csv',
+}
 
-# Add a 'Player' column to each dataframe
-shai['Player'] = 'Shai Gilgeous-Alexander'
-giannis['Player'] = 'Giannis Antetokounmpo'
-jokic['Player'] = 'Nikola Jokić'
+# Load and process each player's data
+dfs = []
+for player, file in players.items():
+    # Load CSV file for the player
+    df = pd.read_csv(file)
+    
+    # Add 'Player' column
+    df['Player'] = player
+    
+    # Add the player's dataframe to the list
+    dfs.append(df)
 
-# Merge the dataframes on the 'Season' column to find common seasons
-common_seasons = set(shai['Season']).intersection(giannis['Season']).intersection(jokic['Season'])
+# Find common seasons across all players
+common_seasons = set(dfs[0]['Season'])
+for df in dfs[1:]:
+    common_seasons = common_seasons.intersection(df['Season'])
 
 # Filter each dataframe to include only the common seasons
-shai_filtered = shai[shai['Season'].isin(common_seasons)]
-giannis_filtered = giannis[giannis['Season'].isin(common_seasons)]
-jokic_filtered = jokic[jokic['Season'].isin(common_seasons)]
+filtered_dfs = [df[df['Season'].isin(common_seasons)] for df in dfs]
 
 # Concatenate the filtered dataframes
-combined = pd.concat([shai_filtered, giannis_filtered, jokic_filtered])
+combined = pd.concat(filtered_dfs)
 
 # Sort by Season and Player for better readability
 combined = combined.sort_values(by=['Season', 'Player'])
 
 # Save the result to a CSV file
 combined.to_csv('data/top_pies.csv', index=False)
+
+print("CSV file saved as 'data/top_pies.csv'")

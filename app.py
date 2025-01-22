@@ -103,7 +103,11 @@ def update_clusters():
 @app.route('/analyze_trends', methods=['POST'])
 def analyze_trends():
     try:
-        player_name = request.json.get("playerName")
+        data = request.json
+        player_name = data.get("playerName")
+        growth_threshold = data.get("growthThreshold", 2)  # Default to 2 if not provided
+        volatility_threshold = data.get("volatilityThreshold", 5)  # Default to 5 if not provided
+
         if not player_name:
             return jsonify({"error": "Player name is required"}), 400
 
@@ -119,14 +123,14 @@ def analyze_trends():
         avg_growth_rate = player_data['PIE_Growth'].mean()
         std_dev = player_data['PIE_Growth'].std()
 
-        if avg_growth_rate > 0 and std_dev < 5:
-            trend = "Consistent Growth"
-        elif avg_growth_rate < 0 and std_dev < 5:
-            trend = "Consistent Decline"
-        elif std_dev >= 5:
-            trend = "Volatile"
-        else:
+        if avg_growth_rate > growth_threshold and std_dev < volatility_threshold:
+            trend = "Growth"
+        elif avg_growth_rate < -growth_threshold and std_dev < volatility_threshold:
+            trend = "Decline"
+        elif abs(avg_growth_rate) < growth_threshold and std_dev < volatility_threshold:
             trend = "Stable"
+        else:
+            trend = "Volatile"
 
         # Return the analysis results
         return jsonify({
@@ -139,6 +143,7 @@ def analyze_trends():
     except Exception as e:
         app.logger.error(f"Error analyzing trends for player: {e}")
         return jsonify({"error": "An error occurred while processing the request"}), 500
+
 
 
 if __name__ == '__main__':
