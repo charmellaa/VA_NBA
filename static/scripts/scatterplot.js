@@ -66,8 +66,8 @@ function renderScatterplot(data, excludedColors = []) {
     const container = d3.select(".scatterplot");
     const boundingBox = container.node().getBoundingClientRect();
 
-    const width = boundingBox.width - 100;
-    const height = boundingBox.height - 120;
+    const width = boundingBox.width - 120;
+    const height = boundingBox.height - 160;
 
     const margin = { top: 20, right: 20, bottom: 60, left: 60 };
 
@@ -112,16 +112,18 @@ function renderScatterplot(data, excludedColors = []) {
     // Labels
     svg.append("text")
         .attr("x", width / 2)
-        .attr("y", height + margin.bottom - 10)
+        .attr("y", height + margin.bottom - 20)
         .style("text-anchor", "middle")
-        .text("PC1");
+        .text("PC1")
+        .style('font-size', '12px');
 
     svg.append("text")
         .attr("x", -height / 2)
         .attr("y", -margin.left + 30)
         .attr("transform", "rotate(-90)")
         .style("text-anchor", "middle")
-        .text("PC2");
+        .text("PC2")
+        .style('font-size', '12px');
 
     // Draw points
     svg.selectAll(".dot")
