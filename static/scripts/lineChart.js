@@ -11,6 +11,8 @@ const svg = d3
   .append('g')
   .attr('transform', `translate(${margin.left},${margin.top})`);
 
+let tooltipGroup;
+
 d3.csv('data/top_pies.csv').then(data => {
   const players = Array.from(new Set(data.map(d => d.Player)));
   const seasons = Array.from(new Set(data.map(d => d.Season))).sort(
@@ -62,6 +64,14 @@ d3.csv('data/top_pies.csv').then(data => {
     .text('PIE')
     .style('font-size', '14px');
 
+  // Hide tooltip on clicking outside
+svg.on('click', function () {
+  if (tooltipGroup) {
+    tooltipGroup.remove();
+    tooltipGroup = null;
+  }
+})
+
   const line = d3
     .line()
     .x(d => xScale(d.Season))
@@ -74,13 +84,77 @@ d3.csv('data/top_pies.csv').then(data => {
   players.forEach(player => {
     const playerData = data.filter(d => d.Player === player);
 
-    svg
-      .append('path')
-      .datum(playerData)
-      .attr('fill', 'none')
-      .attr('stroke', colorScale(player))
-      .attr('stroke-width', 2)
-      .attr('d', line);
+    const path = svg
+    .append('path')
+    .datum(playerData)
+    .attr('fill', 'none')
+    .attr('stroke', colorScale(player))
+    .attr('stroke-width', 2)
+    .attr('d', line);
+
+  // Add click event for each player line
+  path.on('click', function (event, d) {
+    const playerName = d[0].Player; // `d` contains data for the selected player
+
+    // Remove existing tooltip if any
+    if (tooltipGroup) tooltipGroup.remove();
+
+    // Fetch analysis data
+    fetch('/analyze_trends', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerName })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          // Create a tooltip group
+          tooltipGroup = svg.append('g')
+            .attr('class', 'tooltip-group')
+            .attr('transform', `translate(${event.offsetX}, ${event.offsetY})`);
+
+          // Tooltip rectangle
+          tooltipGroup.append('rect')
+            .attr('width', 200)
+            .attr('height', 100)
+            .attr('x', 10)
+            .attr('y', -10)
+            .attr('rx', 5)
+            .attr('ry', 5)
+            .attr('fill', 'white')
+            .attr('stroke', 'black')
+            .attr('stroke-width', 1)
+            .style('pointer-events', 'none'); // Prevent interaction with tooltip
+
+          // Tooltip text
+          const text = tooltipGroup.append('text')
+            .attr('x', 20)
+            .attr('y', 10)
+            .style('font-size', '12px')
+            .style('fill', 'black');
+
+          text.append('tspan')
+            .text(`${playerName}`)
+            .attr('x', 20)
+            .attr('dy', '1.2em');
+          text.append('tspan')
+            .text(`Growth Rate: ${data.avg_growth_rate.toFixed(2)}%`)
+            .attr('x', 20)
+            .attr('dy', '1.2em');
+          text.append('tspan')
+            .text(`Trend: ${data.trend}`)
+            .attr('x', 20)
+            .attr('dy', '1.2em');
+          text.append('tspan')
+            .text(`Volatility: ${data.std_dev.toFixed(2)}`)
+            .attr('x', 20)
+            .attr('dy', '1.2em');
+        }
+      })
+      .catch(error => console.error('Error:', error));
+    })
 
     svg
       .append('circle')
@@ -96,5 +170,6 @@ d3.csv('data/top_pies.csv').then(data => {
       .text(player)
       .style('font-size', '12px')
       .style('text-anchor', 'start');
+
   });
 });
