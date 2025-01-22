@@ -2,13 +2,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const dataFilePath = "/data/full_nba_data_parallel.csv";
 
   const positionColors = {
-      "Guard": "#7b3294",
-      "Center-Forward": "#e6c600",
-      "Forward": "#6aab01",
-      "Forward-Center": "#0571b0",
-      "Forward-Guard": "#008080",
+      "Guard": "#9936ba",
+      "Center-Forward": "#bba30a",
+      "Forward": "#7ec808",
+      "Forward-Center": "#2a00b4",
+      "Forward-Guard": "#008029",
       "Guard-Forward": "#d01c8b",
-      "Center": "#e66101"
+      "Center": "#da1111"
   };
   let selectedPlayers = [];
 

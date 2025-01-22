@@ -138,16 +138,16 @@ const legendItem = legend.append('g')
 // Circle for the color
 legendItem.append('circle')
   .attr('cx', 10)  // X position for the circle
-  .attr('cy', 10)  // Y position for the circle
-  .attr('r', 8)    // Radius of the circle
+  .attr('cy', -32)  // Y position for the circle
+  .attr('r', 5)    // Radius of the circle
   .attr('fill', item.color);
 
 // Text for the label
 legendItem.append('text')
   .attr('x', 30)  // X position for the text
-  .attr('y', 15)  // Y position for the text
+  .attr('y', -30)  // Y position for the text
   .text(item.label)
-  .style('font-size', '12px')
+  .style('font-size', '11px')
   .style('fill', 'black');
 });
 

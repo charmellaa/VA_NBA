@@ -33,13 +33,13 @@ const displayEffComparison = (playerName) => {
             const margin = { top: 20, right: 20, bottom: 50, left: 40 };
 
             const positionColors = {
-                "Guard": "#7b3294",
-                "Center-Forward": "#e6c600",
-                "Forward": "#6aab01",
-                "Forward-Center": "#0571b0",
-                "Forward-Guard": "#008080",
+                "Guard": "#9936ba",
+                "Center-Forward": "#bba30a",
+                "Forward": "#7ec808",
+                "Forward-Center": "#2a00b4",
+                "Forward-Guard": "#008029",
                 "Guard-Forward": "#d01c8b",
-                "Center": "#e66101"
+                "Center": "#da1111"
             };
 
             // Determine the player's position and color
@@ -118,13 +118,13 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
         const maxSelections = 3;
         const radarMetrics = ["PTS_n", "REB_n", "AST_n", "STL_n", "BLK_n", "TOV_n"];
         const positionColors = {
-            "Guard": "#7b3294",
-            "Center-Forward": "#e6c600",
-            "Forward": "#6aab01",
-            "Forward-Center": "#0571b0",
-            "Forward-Guard": "#008080",
+            "Guard": "#9936ba",
+            "Center-Forward": "#bba30a",
+            "Forward": "#7ec808",
+            "Forward-Center": "#2a00b4",
+            "Forward-Guard": "#008029",
             "Guard-Forward": "#d01c8b",
-            "Center": "#e66101"
+            "Center": "#da1111"
         };
 
         renderRadarChart(radarChartSvg, [], radarMetrics, positionColors);

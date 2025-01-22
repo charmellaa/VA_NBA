@@ -3,13 +3,13 @@ let scatterplotData;
 let selection;
 let selectedPlayers = ["LeBron James", "Stephen Curry"]; // Pre-selected players
 let excludedColors =  [
-    "#7b3294",
-    "#e6c600", 
-    "#008080", 
+    "#9936ba",
+    "#bba30a", 
+    "#008029", 
     "#d01c8b", 
-    "#e66101", 
-    "#0571b0", 
-    "#6aab01"  
+    "#da1111", 
+    "#2a00b4", 
+    "#7ec808"  
     ]
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -171,8 +171,6 @@ function renderScatterplot(data, excludedColors = []) {
 
     updateScatterplot(data, selectedPlayers);
 
-    // Add legend below the scatterplot
-    // Add legend below the scatterplot
 // Add legend below the scatterplot
 const legendContainer = container.append("div").attr("class", "scatterplot-legend");
 
