@@ -1,17 +1,10 @@
 import { renderRadarChart } from './radarChart.js';
 
-let selectedPlayers = ["LeBron James", "Stephen Curry"]; // Pre-selected players
+let selectedPlayers = ["LeBron James", "Stephen Curry"];
 let fullNbaData = [];
 let selectedPlayerName = null;
 
-const updateParallelCoordinates = () => {
-    const event = new CustomEvent("updateSelectedPlayers", { detail: { selectedPlayers } });
-    document.dispatchEvent(event);
-    //console.log("Dispatching selectedPlayers:", selectedPlayers);
-
-};
-
-// Function to fetch and display eff comparison
+// Get and display the efficiency comparison next to the radar chart
 const displayEffComparison = (playerName) => {
     fetch('/get_eff_comparison', {
         method: 'POST',
@@ -24,25 +17,25 @@ const displayEffComparison = (playerName) => {
     .then(data => {
         if (data.selected_player_eff && data.average_eff) {
             const comparisonDiv = d3.select(".eff-comparison");
-            comparisonDiv.html(""); // Clear any existing content
+            comparisonDiv.html(""); // Clear any existing content first
 
-            const width = 200; // Updated chart width
-            const height = 200; // Updated chart height
-            const barWidth = 40; // Adjusted bar width
-            const maxEff = Math.max(data.selected_player_eff, data.average_eff) * 1.1; // Add 10% buffer for scaling
+            const width = 200; 
+            const height = 200; 
+            const barWidth = 40; 
+            const maxEff = Math.max(data.selected_player_eff, data.average_eff) * 1.1; // 10% buffer for scaling
             const margin = { top: 20, right: 20, bottom: 50, left: 40 };
 
+            // Assign the same colors of positions to the bars 
             const positionColors = {
                 "Guard": "#9936ba",
                 "Center-Forward": "#bba30a",
                 "Forward": "#7ec808",
                 "Forward-Center": "#2a00b4",
                 "Forward-Guard": "#008029",
-                "Guard-Forward": "#d01c8b",
+                "Guard-Forward": "#ef3eab ",
                 "Center": "#da1111"
             };
 
-            // Determine the player's position and color
             const playerPosition = fullNbaData.find(player => player.Player === playerName)?.Position || "Guard";
             const playerColor = positionColors[playerPosition] || "#000000";
 
@@ -105,7 +98,16 @@ const displayEffComparison = (playerName) => {
     .catch(error => console.error("Error fetching EFF comparison data:", error));
 };
 
+// Let the Parallel Coordinates section update the chart at player selection/deselection
+const updateParallelCoordinates = () => {
+    const event = new CustomEvent("updateSelectedPlayers", { detail: { selectedPlayers } });
+    document.dispatchEvent(event);
+};
+
+// Display the player's list
 d3.csv("/data/playerslist.csv").then(playerListData => {
+
+    // For Radar chart, values are normalized using Min-Max scaling
     d3.csv("./data/normalized_full.csv").then(fullData => {
         fullNbaData = fullData;
 
@@ -115,18 +117,24 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
         const deselectButton = d3.select("#deselect-button");
         const radarChartSvg = d3.select("#radar-chart-svg");
 
+        const positionFilter = d3.select("#position-filter"); // New Position Filter
+        let selectedPosition = ""; // Track the selected position filter
+
         const maxSelections = 3;
         const radarMetrics = ["PTS_n", "REB_n", "AST_n", "STL_n", "BLK_n", "TOV_n"];
+
+        // color code names and images with position colors
         const positionColors = {
             "Guard": "#9936ba",
             "Center-Forward": "#bba30a",
             "Forward": "#7ec808",
             "Forward-Center": "#2a00b4",
             "Forward-Guard": "#008029",
-            "Guard-Forward": "#d01c8b",
+            "Guard-Forward": "#ef3eab ",
             "Center": "#da1111"
         };
 
+        // render Radar 
         renderRadarChart(radarChartSvg, [], radarMetrics, positionColors);
 
         const renderPlayers = (filtered_data) => {
@@ -148,7 +156,7 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
                     .append("div")
                     .attr("class", "player-entry")
                     .attr("data-player-name", d => d.Player)
-                    .style("background-color", d => selectedPlayers.includes(d.Player) ? "#d9f2d9" : "#f5f5f5")
+                    .style("background-color", d => selectedPlayers.includes(d.Player) ? "#f9ecec" : "#f5f5f5")
                     .on("click", function (event, d) {
                         const playerName = d.Player;
         
@@ -157,7 +165,7 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
                             d3.select(this).style("background-color", "#f5f5f5");
                         } else if (selectedPlayers.length < maxSelections) {
                             selectedPlayers.push(playerName);
-                            d3.select(this).style("background-color", "#d9f2d9");
+                            d3.select(this).style("background-color", "#f9ecec");
                         } else {
                             alert("You can only select up to 3 players.");
                         }
@@ -165,7 +173,7 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
                         playerList.dispatch("playerSelectionChange", { detail: { selectedPlayers } });
                         updateDeselectButton();  
                         updateRadarChart(); 
-                        updateParallelCoordinates(); // Notify parallel coordinates chart
+                        updateParallelCoordinates(); 
 
                         renderPlayers(playerListData); 
                     })
@@ -186,6 +194,15 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
             } else {
                 noPlayer.style("display", "block");
             }
+        };
+
+        const updatePlayersList = () => {
+            const filteredData = playerListData.filter(player => {
+                const matchesPosition = selectedPosition === "" || player.Position === selectedPosition;
+                return matchesPosition;
+            });
+
+            renderPlayers(filteredData);
         };
 
         
@@ -218,7 +235,7 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
                 })
                 .on("mouseout", function() {
                     const comparisonDiv = d3.select(".eff-comparison");
-                    comparisonDiv.html("Hover for player's Efficiency."); 
+                    comparisonDiv.html("Hover on player's radar for Efficiency comparison."); 
                     d3.select(this)
                     .style("fill-opacity", 0.2)
                     .style("stroke-width", 2);
@@ -227,21 +244,27 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
         };
 
         renderPlayers(playerListData);
-        updateParallelCoordinates(); // Notify parallel coordinates chart
+        updateParallelCoordinates();
         updateRadarChart(); 
         updateDeselectButton(); 
+
+        positionFilter.on("change", function () {
+            selectedPosition = this.value; // Update selected position
+            updatePlayersList(); // Update the player list based on the new filter
+        });
 
         search.on("input", function () {
             const searchName = this.value.toLowerCase();
             const playerSearch = playerListData.filter(player =>
                 player.Player && player.Player.toLowerCase().includes(searchName)
             );
+            updatePlayersList();
 
             renderPlayers(playerSearch);
             updateDeselectButton();
         });
 
-
+        // Listen to player selection from the scatterplot section
         d3.select("#player-list").on("playerSelectionChange2", function (event) {
             selectedPlayers = event.detail.selectedPlayers || [];
 
@@ -249,13 +272,13 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
 
             playerEntries.each(function (d) {
                 const isSelected = selectedPlayers.includes(d.Player);
-                d3.select(this).style("background-color", isSelected ? "#d9f2d9" : "#f5f5f5");
+                d3.select(this).style("background-color", isSelected ? "#f9ecec" : "#f5f5f5");
             });
 
             renderPlayers(playerListData);
             updateRadarChart();
             updateDeselectButton(); 
-            updateParallelCoordinates(); // Notify parallel coordinates chart
+            updateParallelCoordinates(); 
 
         });
 
@@ -266,11 +289,10 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
                 .style("background-color", "#f5f5f5");
 
             updateDeselectButton();
+
             playerList.dispatch("playerSelectionChange", { detail: { selectedPlayers } });
             updateRadarChart();
             updateParallelCoordinates(); // Notify parallel coordinates chart
-
-
         });
 
     });

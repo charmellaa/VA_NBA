@@ -8,17 +8,22 @@ from flask import send_from_directory
 
 app = Flask(__name__, template_folder=".")
 
+# in order to access dthe data needed for the computations
 @app.route('/data/<path:filename>')
 def serve_data(filename):
     return send_from_directory('data', filename)
-# Load initial data
+
+# preprocessed data with all the values
 nba_data = pd.read_csv('data/full_nba_data.csv')
 cols = ["GP", "W", "L", "Min", "PTS", "FGM", "FGA", "3PM", "3PA", "FTM",
         "FTA", "OREB", "DREB", "REB", "AST", "TOV", "STL", "BLK", "PF",
         "FP", "+/-"]
 
+# data with top 5 players PIE (Player Efficiency Estimate over the years)
 pie_data = pd.read_csv('data/top_pies.csv')
 
+
+# here is the computation of the efficiency value for the bar graph besides the radar chart
 def compute_eff(player): #efficiency
     PTS = player['PTS']
     REB = player['REB']
@@ -32,11 +37,12 @@ def compute_eff(player): #efficiency
     FTA = player['FTA']
     FTM = player['FTM']
 
-
-
+        
+    # formula for calculating Efficiency with general performance metrics
     eff = (PTS + REB + AST + STL + BLK - ((FGA - FGM) + (FTA - FTM) + TOV))
     return eff
 
+#### EFFICIENCY COMPARISON ####
 @app.route('/get_eff_comparison', methods=['POST'])
 def get_eff_comparison():
     try:
@@ -49,12 +55,14 @@ def get_eff_comparison():
         if selected_player.empty:
             return jsonify({"error": f"Player {player_name} not found"}), 400
 
+        # compute selected player's efficiency
         selected_player = selected_player.iloc[0]
-
         selected_player_eff = compute_eff(selected_player)
-    
-        other_players = nba_data[nba_data['Player'] != player_name]
-        other_players_eff = other_players.apply(compute_eff, axis=1)
+
+        # compute the mean of other players' efficiency
+        #other_players = nba_data[nba_data['Player'] != player_name]
+        #other_players_eff = other_players.apply(compute_eff, axis=1)
+        other_players_eff = nba_data.apply(compute_eff, axis=1)
         avg_eff = other_players_eff.mean()
 
         return jsonify({
@@ -69,10 +77,16 @@ def get_eff_comparison():
 
 @app.route('/')
 def index():
+    return render_template('index.html')
+
+@app.route('/next.html')
+def next():
     return render_template('next.html')
 
-@app.route('/update_clusters', methods=['POST'])
-def update_clusters():
+### CLUSTER NUMBER CHOICE -- K-MEANS ###
+### PRINCIPAL COMPONENT ANALYSIS ###
+@app.route('/pca_clusters', methods=['POST'])
+def pca_clusters():
     try:
         n_clusters = int(request.json.get("clusters", 3))  # Default to 3 clusters
 
@@ -92,42 +106,41 @@ def update_clusters():
         pca_df["Player"] = nba_data["Player"]
         pca_df["Cluster"] = pca_df["Cluster"] = ["Cluster " + str(label + 1) for label in cluster_labels]
 
-
-
-
         return jsonify(pca_df.to_dict(orient="records"))
     except Exception as e:
         return jsonify({"error": str(e)}), 400
     
 
+### PIE (Player's Impact Estimate) AND GROWTH RATE OVER THE SEASONS (FROM 2020) ###
 @app.route('/analyze_trends', methods=['POST'])
 def analyze_trends():
     try:
         data = request.json
         player_name = data.get("playerName")
-        growth_threshold = data.get("growthThreshold", 2)  # Default to 2 if not provided
-        volatility_threshold = data.get("volatilityThreshold", 5)  # Default to 5 if not provided
+        #default values
+        growth_threshold = data.get("growthThreshold", 2) 
+        volatility_threshold = data.get("volatilityThreshold", 5)  
 
         if not player_name:
             return jsonify({"error": "Player name is required"}), 400
 
-        # Filter data for the selected player
         player_data = pie_data[pie_data['Player'] == player_name].sort_values(by='Season')
         if player_data.empty:
             return jsonify({"error": f"Player {player_name} not found"}), 400
 
-        # Calculate season-over-season growth rates
+        # season-over-season pie percentage change
         player_data['PIE_Growth'] = player_data['PIE'].pct_change() * 100
 
-        # Analyze trends
+        # Analyze trends: using mean and standard deviation
         avg_growth_rate = player_data['PIE_Growth'].mean()
-        std_dev = player_data['PIE_Growth'].std()
+        sd = player_data['PIE_Growth'].std()
 
-        if avg_growth_rate > growth_threshold and std_dev < volatility_threshold:
+
+        if avg_growth_rate > growth_threshold and sd < volatility_threshold:
             trend = "Growth"
-        elif avg_growth_rate < -growth_threshold and std_dev < volatility_threshold:
+        elif avg_growth_rate < -growth_threshold and sd < volatility_threshold:
             trend = "Decline"
-        elif abs(avg_growth_rate) < growth_threshold and std_dev < volatility_threshold:
+        elif abs(avg_growth_rate) < growth_threshold and sd < volatility_threshold:
             trend = "Stable"
         else:
             trend = "Volatile"
@@ -136,7 +149,7 @@ def analyze_trends():
         return jsonify({
             "player": player_name,
             "avg_growth_rate": avg_growth_rate,
-            "std_dev": std_dev,
+            "std_dev": sd,
             "trend": trend
         })
 

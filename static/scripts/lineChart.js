@@ -1,6 +1,6 @@
 const margin = { top: 20, right: 30, bottom: 50, left: 50 };
 const width = 465 - margin.left - margin.right;
-const height = 330 - margin.top - margin.bottom;
+const height = 315 - margin.top - margin.bottom;
 
 // Append SVG 
 const svg = d3
@@ -34,71 +34,23 @@ d3.csv('data/top_pies.csv').then(data => {
     .domain(seasons)
     .range([0, width]);
 
-  const minPIE = d3.min(data, d => d.PIE); // Find the minimum PIE value in the data
-  const maxPIE = d3.max(data, d => d.PIE); // Find the maximum PIE value in the data
+  const minPIE = d3.min(data, d => d.PIE); // minimum PIE value 
+  const maxPIE = d3.max(data, d => d.PIE); // maximum PIE value
     
   const yScale = d3
     .scaleLinear()
-    .domain([Math.max(0, minPIE - 5), maxPIE + 5]) // Adjust the domain to start slightly below the minPIE
-    .nice()
+    .domain([Math.max(0, minPIE - 5), maxPIE + 5])
     .range([height, 0]);
 
   const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
   const yAxis = d3.axisLeft(yScale);
-
-  svg
-    .append('g')
-    .attr('transform', `translate(0,${height})`)
-    .call(xAxis)
-    .selectAll('text')
-    .attr('transform', 'rotate(-45)')
-    .style('text-anchor', 'end');
-
-  svg.append('g').call(yAxis);
-
-  svg
-    .append('text')
-    .attr('x', width / 2)
-    .attr('y', height + margin.bottom)
-    .attr('text-anchor', 'middle')
-    .text('Season')
-    .style('font-size', '14px');
-
-  svg
-    .append('text')
-    .attr('x', -height / 2)
-    .attr('y', -margin.left + 15)
-    .attr('text-anchor', 'middle')
-    .attr('transform', 'rotate(-90)')
-    .text('PIE')
-    .style('font-size', '14px');
-
-  // Hide tooltip on clicking outside
-  svg.on('click', function () {
-    if (tooltipGroup) {
-      tooltipGroup.remove();
-      tooltipGroup = null;
-    }
-  });
 
   const line = d3
     .line()
     .x(d => xScale(d.Season))
     .y(d => yScale(d.PIE));
 
-    // Create the legend
-const legendData = [
-  { label: 'Growth', color: 'green' },
-  { label: 'Decline', color: 'red' },
-  { label: 'Stable', color: 'blue' },
-  { label: 'Volatile', color: 'lavender' }
-];
-
-  // Function to update the chart with new trends
-  function updateChart() {
-    svg.selectAll("*").remove(); // Clear the previous chart
-    
-    // Recreate axes and labels
+  const drawAxes = () => {
     svg
       .append('g')
       .attr('transform', `translate(0,${height})`)
@@ -106,7 +58,7 @@ const legendData = [
       .selectAll('text')
       .attr('transform', 'rotate(-45)')
       .style('text-anchor', 'end');
-    
+
     svg.append('g').call(yAxis);
 
     svg
@@ -125,39 +77,67 @@ const legendData = [
       .attr('transform', 'rotate(-90)')
       .text('PIE')
       .style('font-size', '14px');
+   };
 
-    // Create a group for the legend
-const legend = svg.append('g')
-.attr('transform', `translate(${width + margin.right - 120}, 20)`);
+    svg.selectAll("*").on('click', function () {
+      if (tooltipGroup) {
+        tooltipGroup.remove();
+        tooltipGroup = null;
+      }
+    });
 
-// Create a circle for each legend item
-legendData.forEach((item, index) => {
-const legendItem = legend.append('g')
-  .attr('transform', `translate(0, ${index * 25})`);
 
-// Circle for the color
-legendItem.append('circle')
-  .attr('cx', 10)  // X position for the circle
-  .attr('cy', -32)  // Y position for the circle
-  .attr('r', 5)    // Radius of the circle
-  .attr('fill', item.color);
+  const drawLegend = () => {
+    // Create the legend
+    const legendData = [
+      { label: 'Growth', color: 'green' },
+      { label: 'Decline', color: 'red' },
+      {label: 'Stable', color: 'blue' },
+      { label: 'Volatile', color: 'orange' }
+    ];
 
-// Text for the label
-legendItem.append('text')
-  .attr('x', 30)  // X position for the text
-  .attr('y', -30)  // Y position for the text
-  .text(item.label)
-  .style('font-size', '11px')
-  .style('fill', 'black');
-});
+    const legend = svg.append('g')
+      .attr('transform', `translate(${width + margin.right - 120}, 20)`);
+
+    // circle for each legend item
+    legendData.forEach((item, index) => {
+      const legendItem = legend.append('g')
+            .attr('transform', `translate(0, ${index * 25})`);
+
+      legendItem.append('circle')
+        .attr('cx', 10)
+        .attr('cy', -32)
+        .attr('r', 5)
+        .attr('fill', item.color);
+
+      legendItem.append('text')
+        .attr('x', 30)  
+        .attr('y', -30)  
+        .text(item.label)
+        .style('font-size', '11px')
+        .style('fill', 'black');
+    });
+  }
+
+
+
+  // Function to update the chart with new trends
+  function updateChart() {
+    svg.selectAll("*").remove(); // Clear the previous chart
+    
+    // Draw axes and labels and legend
+    drawAxes();
+    drawLegend();
+
+    // Get threshold values
+    const growthThreshold = parseFloat(document.getElementById('growth-threshold').value);
+    const volatilityThreshold = parseFloat(document.getElementById('volatility-threshold').value);
+
 
     players.forEach(player => {
       const playerData = data.filter(d => d.Player === player);
 
       // Fetch trend analysis for each player
-      const growthThreshold = parseFloat(document.getElementById('growth-threshold').value);
-      const volatilityThreshold = parseFloat(document.getElementById('volatility-threshold').value);
-
       fetch('/analyze_trends', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -167,8 +147,8 @@ legendItem.append('text')
           volatilityThreshold: volatilityThreshold
         })
       })
-        .then(response => response.json())
-        .then(trendData => {
+      .then(response => response.json())
+      .then(trendData => {
           if (trendData.error) {
             console.error('Error analyzing trend:', trendData.error);
           } else {
@@ -187,10 +167,10 @@ legendItem.append('text')
                 lineColor = 'blue';
                 break;
               case 'Volatile':
-                lineColor = 'lavender';
+                lineColor = 'orange ';
                 break;
               default:
-                lineColor = 'gray'; // Default color in case trend is unknown
+                lineColor = 'gray';
             }
 
             // Draw the line with the determined color
@@ -202,14 +182,13 @@ legendItem.append('text')
               .attr('stroke-width', 2)
               .attr('d', line);
 
-            // Add click event for each player line
+            // Click event for each player line
             path.on('click', function (event, d) {
               const playerName = d[0].Player;
 
-              // Remove existing tooltip if any
+              // Remove existing tooltip 
               if (tooltipGroup) tooltipGroup.remove();
 
-              // Fetch analysis data
               fetch('/analyze_trends', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -224,12 +203,11 @@ legendItem.append('text')
                   if (data.error) {
                     alert(data.error);
                   } else {
-                    // Create a tooltip group
+                    // Tooltip with player's values shown on line click
                     tooltipGroup = svg.append('g')
                       .attr('class', 'tooltip-group')
                       .attr('transform', `translate(${event.offsetX}, ${event.offsetY})`);
 
-                    // Tooltip rectangle
                     tooltipGroup.append('rect')
                       .attr('width', 200)
                       .attr('height', 100)
@@ -240,9 +218,8 @@ legendItem.append('text')
                       .attr('fill', 'white')
                       .attr('stroke', 'black')
                       .attr('stroke-width', 1)
-                      .style('pointer-events', 'none'); // Prevent interaction with tooltip
+                      .style('pointer-events', 'none');
 
-                    // Tooltip text
                     const text = tooltipGroup.append('text')
                       .attr('x', 20)
                       .attr('y', 10)
@@ -277,10 +254,9 @@ legendItem.append('text')
     });
   }
 
-  // Initialize the chart
   updateChart();
 
-  // Add event listeners to the threshold controls
+  //Event listeners for threshold input
   document.getElementById('growth-threshold').addEventListener('input', updateChart);
   document.getElementById('volatility-threshold').addEventListener('input', updateChart);
 

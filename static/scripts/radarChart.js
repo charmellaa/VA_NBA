@@ -22,25 +22,25 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
         .angle((d, i) => i * angleSlice)
         .curve(d3.curveCardinalClosed); 
 
-    // Define zoom behavior
+    // Zoom
     const zoom = d3.zoom()
-        .scaleExtent([1, 5]) // Allow zooming between 1x and 5x
+        .scaleExtent([1, 5])
         .on("zoom", (event) => {
-            chartGroup.attr("transform", event.transform); // Apply zoom transform
+            chartGroup.attr("transform", event.transform); 
         });
 
     // Clear and setup the SVG
     svgElement
         .attr("width", width)
         .attr("height", height)
-        .html("") // Clear existing content
-        .call(zoom); // Attach zoom behavior
+        .html("")
+        .call(zoom); // Attach zoom
 
     const chartGroup = svgElement
         .append("g")
         .attr("transform", `translate(${width / 2}, ${height / 2.5})`);
 
-    // Draw grid lines and reference numbers
+    // Draw lines
     const levels = 5;
     for (let level = 0; level < levels; level++) {
         const r = (radius / levels) * (level + 1);
@@ -54,7 +54,7 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
 
         chartGroup.append("text")
             .attr("x", 0)
-            .attr("y", -r) // Place the label above the circle
+            .attr("y", -r)
             .attr("dy", "-0.3em")
             .style("text-anchor", "middle")
             .style("font-size", "10px")
@@ -83,7 +83,7 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
             .text(metricLabels[metric]); 
     });
 
-    // Draw data
+    // Draw data for chart
     players.forEach(player => {
         const dataPoints = radarMetrics.map((metric, i) => ({
             axis: metric,
@@ -101,7 +101,7 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
             .style("stroke", positionColors[player.Position])
             .style("stroke-width", 2);
 
-        // Add hover events
+        // Hover
         path
             .on("mouseover", function () {
                 d3.select(this)
@@ -114,10 +114,21 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
                     .style("stroke-width", 2);
             });
 
-        // Draw dots at intersections
+        // Display dots at intersections
         dataPoints.forEach(point => {
             const x = Math.cos(point.angle) * rScale(point.value);
             const y = Math.sin(point.angle) * rScale(point.value);
+
+            
+            const tooltip = svgElement
+                .append("text")
+                .attr("x", x + width / 2)
+                .attr("y", y + height / 2.5)
+                .attr("dy", "-0.5em")
+                .attr("text-anchor", "middle")
+                .attr("font-size", "10px")
+                .attr("fill", "black")
+                .style("visibility", "hidden");
 
             chartGroup.append("circle")
                 .attr("cx", x)
@@ -125,7 +136,22 @@ export const renderRadarChart = (svgElement, players, radarMetrics, positionColo
                 .attr("r", 3)
                 .style("fill", positionColors[player.Position])
                 .style("stroke", "#fff")
-                .style("stroke-width", 1);
+                .style("stroke-width", 2)
+                .on("mouseover", function () {
+                    tooltip.text(`${point.value.toFixed(2)}`)
+                    .style("visibility", "visible")
+                    .style("font-weight", "bold");
+                    d3.select(this).attr("r", 5); //make the dot bigger
+                })
+                .on("mousemove", function (event) {
+                    tooltip
+                        .attr("x", event.offsetX)
+                        .attr("y", event.offsetY - 10); // update tooltip position
+                    })
+                .on("mouseout", function () {
+                    tooltip.style("visibility", "hidden");
+                    d3.select(this).attr("r", 3); // go back to original size
+                });
         });
     });
 };

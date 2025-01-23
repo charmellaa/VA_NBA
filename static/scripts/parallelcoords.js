@@ -1,18 +1,19 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const dataFilePath = "/data/full_nba_data_parallel.csv";
+    const dataFilePath = "/data/full_nba_data_parallel.csv";
 
-  const positionColors = {
-      "Guard": "#9936ba",
-      "Center-Forward": "#bba30a",
-      "Forward": "#7ec808",
-      "Forward-Center": "#2a00b4",
-      "Forward-Guard": "#008029",
-      "Guard-Forward": "#d01c8b",
-      "Center": "#da1111"
-  };
-  let selectedPlayers = [];
+    const positionColors = {
+        "Guard": "#9936ba",
+        "Center-Forward": "#bba30a",
+        "Forward": "#7ec808",
+        "Forward-Center": "#2a00b4",
+        "Forward-Guard": "#008029",
+        "Guard-Forward": "#ef3eab ",
+        "Center": "#da1111"
+    };
 
-  const teamNameMap = {
+    let selectedPlayers = [];
+
+    const teamNameMap = {
       "ATL": "ATL - Atlanta Hawks",
       "BOS": "BOS - Boston Celtics",
       "BKN": "BKN - Brooklyn Nets",
@@ -43,10 +44,12 @@ document.addEventListener("DOMContentLoaded", () => {
       "TOR": "TOR - Toronto Raptors",
       "UTA": "UTA - Utah Jazz",
       "WAS": "WAS - Washington Wizards"
-  };
+    };
 
-  d3.csv(dataFilePath).then(data => {
-      let axes = ["Age", "Height_inches", "Weight_lbs", "FG%", "3P%", "FT%", "FGA", "3PA", "FTA"];
+    d3.csv(dataFilePath).then(data => {
+
+    //Physical and shooting metrics
+      let axes = ["Age", "Height_cm", "Weight_kg", "FG%", "3P%", "FT%", "FGA", "3PA", "FTA"];
 
     // console.log("Valid axes:", axes); 
 
@@ -72,17 +75,24 @@ document.addEventListener("DOMContentLoaded", () => {
       const containerWidth = container.node().clientWidth;
       const containerHeight = container.node().clientHeight;
 
-      const margin = { top: 30, right: 5, bottom: 30, left: 5 };
+      const margin = { top: 30, right: -100, bottom: 30, left: -100 };
       const width = containerWidth - margin.left - margin.right;
       const height = containerHeight - margin.top - margin.bottom;
 
       const svg = container
-          .select("svg#parallel-coordinates-svg")
-          .attr("viewBox", `0 0 ${containerWidth} ${containerHeight}`)
-          .attr("preserveAspectRatio", "xMidYMid meet");
+        .select("svg#parallel-coordinates-svg")
+        .attr("viewBox", `0 0 ${containerWidth} ${containerHeight}`)
+        .attr("preserveAspectRatio", "xMidYMid meet")
+        .call(
+            d3.zoom()
+                .scaleExtent([1, 8]) //  zooming 
+                .on("zoom", function (event) {
+                chartGroup.attr("transform", event.transform);
+            })
+        );
 
       const chartGroup = svg.append("g")
-          .attr("transform", `translate(${margin.left},${margin.top})`);
+            .attr("transform", `translate(${margin.left},${margin.top})`);
 
       const yScales = {};
       axes.forEach(axis => {
@@ -109,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
           .style("display", "none");
 
 
-          const updateChart = () => {
+      const updateChart = () => {
             // console.log(axes);
             chartGroup.selectAll(".player-line")
                 .transition()
@@ -195,7 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
               .attr("stroke-width", 1)
               .attr("opacity", 0.8)
               .on("mouseover", function (event, d) {
-                console.log(selectedPlayers);
+                //console.log(selectedPlayers);
                 // Highlight the selected line
                 d3.select(this)
                     .attr("stroke-width", 7)
@@ -216,26 +226,26 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .on("mouseout", function (event, d) {
               // Restore this line's appearance
-              d3.select(this)
+                d3.select(this)
                   .attr("stroke-width", selectedPlayers.includes(d.Player) ? 7 : 1)
                   .attr("opacity", selectedPlayers.includes(d.Player) ? 1 : 0.12);
           
               // Restore all other lines' appearance
               // Reapply highlighting for selected players
-      const noPlayersSelected1 = selectedPlayers.length === 0;
-      chartGroup.selectAll(".player-line")
-          .attr("opacity", d => noPlayersSelected1 ? 0.8 : (selectedPlayers.includes(d.Player) ? 1 : 0.12)) // Default styling
-          .attr("stroke-width", d => noPlayersSelected1 ? 1 : (selectedPlayers.includes(d.Player) ? 7 : 1)); // Thicker stroke for selected
+                const noPlayersSelected1 = selectedPlayers.length === 0;
+                chartGroup.selectAll(".player-line")
+                    .attr("opacity", d => noPlayersSelected1 ? 0.8 : (selectedPlayers.includes(d.Player) ? 1 : 0.12)) // Default styling
+                    .attr("stroke-width", d => noPlayersSelected1 ? 1 : (selectedPlayers.includes(d.Player) ? 7 : 1)); // Thicker stroke for selected
           
-              // Hide tooltip
-              tooltip.style("display", "none");
-          });
+       
+                tooltip.style("display", "none");
+            });
           
-            
-      };
+          };
 
       // Draw initial lines
       drawLines(data);
+      
 
       document.addEventListener("updateSelectedPlayers", (event) => {
         selectedPlayers = event.detail.selectedPlayers;
@@ -243,26 +253,26 @@ document.addEventListener("DOMContentLoaded", () => {
          chartGroup.selectAll(".player-line")
         .attr("opacity", d => selectedPlayers.length === 0 ? 0.8 : (selectedPlayers.includes(d.Player) ? 1 : 0.12)) // Highlight selected players or revert to default
         .attr("stroke-width", d => selectedPlayers.length === 0 ? 1 : (selectedPlayers.includes(d.Player) ? 7 : 1)); // Adjust stroke width accordingly
-    });
+        });
 
-    dropdown.on("change", function () {
-      const selectedTeam = this.value;
-      let filteredData;
+      dropdown.on("change", function () {
+        const selectedTeam = this.value;
+        let filteredData;
   
-      if (selectedTeam === "all") {
+        if (selectedTeam === "all") {
           filteredData = data; // Use all data if "All Teams" is selected
-      } else {
+        } else {
           filteredData = data.filter(d => d.Team === selectedTeam); // Filter by team
-      }
+        }
   
-      drawLines(filteredData); // Redraw lines based on team selection
+        drawLines(filteredData); // Redraw lines based on team selection
   
       // Reapply highlighting for selected players
-      const noPlayersSelected = selectedPlayers.length === 0;
-      chartGroup.selectAll(".player-line")
+        const noPlayersSelected = selectedPlayers.length === 0;
+        chartGroup.selectAll(".player-line")
           .attr("opacity", d => noPlayersSelected ? 0.8 : (selectedPlayers.includes(d.Player) ? 1 : 0.12)) // Default styling
           .attr("stroke-width", d => noPlayersSelected ? 1 : (selectedPlayers.includes(d.Player) ? 7 : 1)); // Thicker stroke for selected
-  });
+      });
   
 
 
