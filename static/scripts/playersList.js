@@ -98,6 +98,40 @@ const displayEffComparison = (playerName) => {
     .catch(error => console.error("Error fetching EFF comparison data:", error));
 };
 
+
+const teamNameMap = {
+    "ATL": "ATL - Atlanta Hawks",
+    "BOS": "BOS - Boston Celtics",
+    "BKN": "BKN - Brooklyn Nets",
+    "CHA": "CHA - Charlotte Hornets",
+    "CHI": "CHI - Chicago Bulls",
+    "CLE": "CLE - Cleveland Cavaliers",
+    "DAL": "DAL - Dallas Mavericks",
+    "DEN": "DEN - Denver Nuggets",
+    "DET": "DET - Detroit Pistons",
+    "GSW": "GSW - Golden State Warriors",
+    "HOU": "HOU - Houston Rockets",
+    "IND": "IND - Indiana Pacers",
+    "LAC": "LAC - Los Angeles Clippers",
+    "LAL": "LAL - Los Angeles Lakers",
+    "MEM": "MEM - Memphis Grizzlies",
+    "MIA": "MIA - Miami Heat",
+    "MIL": "MIL - Milwaukee Bucks",
+    "MIN": "MIN - Minnesota Timberwolves",
+    "NOP": "NOP - New Orleans Pelicans",
+    "NYK": "NYK - New York Knicks",
+    "OKC": "OKC - Oklahoma City Thunder",
+    "ORL": "ORL - Orlando Magic",
+    "PHI": "PHI - Philadelphia 76ers",
+    "PHX": "PHX - Phoenix Suns",
+    "POR": "POR - Portland Trail Blazers",
+    "SAC": "SAC - Sacramento Kings",
+    "SAS": "SAS - San Antonio Spurs",
+    "TOR": "TOR - Toronto Raptors",
+    "UTA": "UTA - Utah Jazz",
+    "WAS": "WAS - Washington Wizards"
+  };
+
 // Let the Parallel Coordinates section update the chart at player selection/deselection
 const updateParallelCoordinates = () => {
     const event = new CustomEvent("updateSelectedPlayers", { detail: { selectedPlayers } });
@@ -253,14 +287,26 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
             updatePlayersList(); // Update the player list based on the new filter
         });
 
+        //Search for a specific player or players of a team
         search.on("input", function () {
-            const searchName = this.value.toLowerCase();
-            const playerSearch = playerListData.filter(player =>
-                player.Player && player.Player.toLowerCase().includes(searchName)
+            const searchInput = this.value.toLowerCase();
+            const matchingTeam = Object.entries(teamNameMap).find(([abbr, name]) =>
+                abbr.toLowerCase().includes(searchInput) || name.toLowerCase().includes(searchInput)
             );
+
+            let filteredPlayers;
+
+            if (matchingTeam) {
+                const teamAbbr = matchingTeam[0];
+                filteredPlayers = playerListData.filter(player => player.Team === teamAbbr);
+            } else {
+                filteredPlayers = playerListData.filter(player =>
+                    player.Player && player.Player.toLowerCase().includes(searchInput)
+                );
+            }
             updatePlayersList();
 
-            renderPlayers(playerSearch);
+            renderPlayers(filteredPlayers);
             updateDeselectButton();
         });
 
