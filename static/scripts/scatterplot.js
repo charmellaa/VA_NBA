@@ -2,7 +2,7 @@
 
 let selection;
 let scatterplotData;
-let selectedPlayers = ["LeBron James", "Stephen Curry"]; // Pre-selected players at page load
+let selectedPlayers = ["Nikola Jokić", "Stephen Curry"]; // Pre-selected players at page load
 let excludedColors =  [
     "#9936ba",
     "#bba30a", 

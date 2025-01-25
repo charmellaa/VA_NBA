@@ -22,6 +22,27 @@ cols = ["GP", "W", "L", "Min", "PTS", "FGM", "FGA", "3PM", "3PA", "FTM",
 # data with top 5 players PIE (Player Efficiency Estimate over the years)
 pie_data = pd.read_csv('data/top_pies.csv')
 
+import pandas as pd
+
+# Normalize data for the radar chart
+def normalize_data():
+    data = pd.read_csv('./data/full_nba_data.csv')
+
+    # Columns to normalize
+    columns_to_normalize = ['PTS', 'REB', 'AST', 'TOV', 'STL', 'BLK']
+
+    # Min-Max scaling
+    def normalize_column(column):
+        return (column - column.min()) / (column.max() - column.min())
+
+    for column in columns_to_normalize:
+        data[f'{column}_n'] = normalize_column(data[column])
+
+    normalized_path = './data/normalized_full.csv'
+    data.to_csv(normalized_path, index=False)
+    print(f"Normalization complete. The normalized dataset is saved as '{normalized_path}'.")
+    return data
+
 
 # here is the computation of the efficiency value for the bar graph besides the radar chart
 def compute_eff(player): #efficiency
@@ -81,6 +102,7 @@ def index():
 
 @app.route('/next.html')
 def next():
+    normalize_data()
     return render_template('next.html')
 
 ### CLUSTER NUMBER CHOICE -- K-MEANS ###
@@ -105,6 +127,7 @@ def pca_clusters():
         pca_df = pd.DataFrame(pca_results, columns=["PC1", "PC2"])
         pca_df["Player"] = nba_data["Player"]
         pca_df["Cluster"] = pca_df["Cluster"] = ["Cluster " + str(label + 1) for label in cluster_labels]
+        pca_df.to_csv("data/pca_results.csv", index=False)
 
         return jsonify(pca_df.to_dict(orient="records"))
     except Exception as e:
@@ -118,8 +141,8 @@ def analyze_trends():
         data = request.json
         player_name = data.get("playerName")
         #default values
-        growth_threshold = data.get("growthThreshold", 2) 
-        volatility_threshold = data.get("volatilityThreshold", 5)  
+        growth_threshold = data.get("growthThreshold", 0.5) 
+        volatility_threshold = data.get("volatilityThreshold", 10.5)  
 
         if not player_name:
             return jsonify({"error": "Player name is required"}), 400
@@ -130,6 +153,8 @@ def analyze_trends():
 
         # season-over-season pie percentage change
         player_data['PIE_Growth'] = player_data['PIE'].pct_change() * 100
+        #print(f"PIE Growth for {player_name}:\n{player_data[['Season', 'PIE_Growth']]}")
+
 
         # Analyze trends: using mean and standard deviation
         avg_growth_rate = player_data['PIE_Growth'].mean()

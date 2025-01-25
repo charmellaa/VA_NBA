@@ -16,4 +16,4 @@ for column in columns_to_normalize:
 
 data.to_csv('./data/normalized_full.csv', index=False)
 
-print("Normalization complete. The normalized dataset is saved as 'normalized_dataset.csv'.")
+print("Normalization complete. The normalized dataset is saved as 'normalized_full.csv'.")

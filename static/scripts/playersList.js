@@ -1,6 +1,6 @@
 import { renderRadarChart } from './radarChart.js';
 
-let selectedPlayers = ["LeBron James", "Stephen Curry"];
+let selectedPlayers = ["Nikola Jokić", "Stephen Curry"];
 let fullNbaData = [];
 let selectedPlayerName = null;
 

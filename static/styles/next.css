@@ -397,7 +397,7 @@ body, html {
 
 
 /* For alert warning */
-.custom-alert {
+.new-alert {
     position: fixed;
     top: 0;
     left: 0;
@@ -410,7 +410,7 @@ body, html {
     z-index: 9999;
 }
 
-.custom-alert-content {
+.new-alert-content {
     background-color: #ffffff;
     color: #333333;
     padding: 20px;
@@ -421,7 +421,7 @@ body, html {
     max-width: 90%;
 }
 
-.custom-alert-button {
+.new-alert-button {
     margin-top: 15px;
     padding: 10px 20px;
     background-color: #007bff;
@@ -432,6 +432,6 @@ body, html {
     font-size: 14px;
 }
 
-.custom-alert-button:hover {
+.new-alert-button:hover {
     background-color: #0056b3;
 }
