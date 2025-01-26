@@ -56,10 +56,13 @@ document.addEventListener("DOMContentLoaded", () => {
     //Physical and shooting metrics
       let allAxes = ["Age", "Height_cm", "Weight_kg", "FG%", "3P%", "FT%", "FGA", "3PA", "FTA"];
 
+      let selectedTeam = "all"; // Keep track of selected team
+
+
       
 
     // console.log("Valid axes:", axes); 
-      let axes = [...allAxes]; // Clone all axes initially
+      let axes = [...allAxes];
 
       // Add a checkbox for toggling physical attributes
       const container = d3.select(".parallel-coordinates");
@@ -292,8 +295,6 @@ document.addEventListener("DOMContentLoaded", () => {
           
           };
 
-      // Draw initial lines
-      drawLines(data);
       
 
       document.addEventListener("updateSelectedPlayers", (event) => {
@@ -305,21 +306,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
       dropdown.on("change", function () {
-        const selectedTeam = this.value;
-        let filteredData;
-  
-        if (selectedTeam === "all") {
-          filteredData = data; // Use all data if "All Teams" is selected
-        } else {
-          filteredData = data.filter(d => d.Team === selectedTeam); // Filter by team
-        }
-  
-        drawLines(filteredData); // Redraw lines based on team selection
-  
-        reHighlight();
+        selectedTeam = this.value; // Update the selected team
+        redrawAxesAndLines(); // Redraw with updated team filter
+
       });
 
       const redrawAxesAndLines = () => {
+        const filteredData = selectedTeam === "all" 
+        ? data 
+        : data.filter(d => d.Team === selectedTeam); // Filter data based on team
         updateYScales();
     
         chartGroup.selectAll(".axis").remove();
@@ -341,10 +336,12 @@ document.addEventListener("DOMContentLoaded", () => {
             axisGroup.call(d3.axisLeft(yScales[axis]).ticks(5));
         });
     
-        drawLines(data);
+        drawLines(filteredData);
     
         reHighlight();
     };
+    // Draw initial lines
+    drawLines(data);
   
 
 
