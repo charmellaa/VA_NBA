@@ -435,3 +435,21 @@ body, html {
 .new-alert-button:hover {
     background-color: #0056b3;
 }
+
+
+.dropdowns {
+    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+
+    font-size: 13px;
+
+}
+
+.clus-drop {
+    grid-column: 1;
+}
+
+.controls {
+    grid-column: 2;
+}

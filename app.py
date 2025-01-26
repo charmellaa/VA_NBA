@@ -111,9 +111,16 @@ def next():
 def pca_clusters():
     try:
         n_clusters = int(request.json.get("clusters", 3))  # Default to 3 clusters
+        position_filter = request.json.get("position", "All positions")  # Get position filter
+
+        # Filter dataset by position, otherwise do PCA on "All positions"
+        if position_filter != "All positions":
+            filtered_data = nba_data[nba_data["Position"] == position_filter]
+        else:
+            filtered_data = nba_data
 
         # Data preprocessing and PCA
-        data = nba_data[cols]
+        data = filtered_data[cols]
         data_scaled = StandardScaler().fit_transform(data)
 
         pca = PCA(n_components=2)
@@ -125,9 +132,16 @@ def pca_clusters():
 
         # Prepare data for the response
         pca_df = pd.DataFrame(pca_results, columns=["PC1", "PC2"])
-        pca_df["Player"] = nba_data["Player"]
+        pca_df["Player"] = filtered_data["Player"].values
         pca_df["Cluster"] = pca_df["Cluster"] = ["Cluster " + str(label + 1) for label in cluster_labels]
-        pca_df.to_csv("data/pca_results.csv", index=False)
+        
+        # Save results to a file
+        if position_filter == "All positions":
+            file_name = "data/pca_results.csv"
+        else:
+            file_name = f"data/pca_{position_filter.replace('-', '_')}.csv"
+
+        pca_df.to_csv(file_name, index=False)
 
         return jsonify(pca_df.to_dict(orient="records"))
     except Exception as e:

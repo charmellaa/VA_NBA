@@ -151,7 +151,6 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
         const deselectButton = d3.select("#deselect-button");
         const radarChartSvg = d3.select("#radar-chart-svg");
 
-        const positionFilter = d3.select("#position-filter"); // New Position Filter
         let selectedPosition = ""; // Track the selected position filter
 
         const maxSelections = 3;
@@ -282,10 +281,7 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
         updateRadarChart(); 
         updateDeselectButton(); 
 
-        positionFilter.on("change", function () {
-            selectedPosition = this.value; // Update selected position
-            updatePlayersList(); // Update the player list based on the new filter
-        });
+
 
         //Search for a specific player or players of a team
         search.on("input", function () {

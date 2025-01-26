@@ -16,12 +16,14 @@ let excludedColors =  [
 
 //function to call the pca/cluster computation from server
 function callPCAandCluster(n_clusters) {
+    const position = document.getElementById("position-filter").value; // Get selected position
+
     fetch("/pca_clusters", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ clusters: n_clusters }),
+        body: JSON.stringify({ clusters: n_clusters, position: position }),
     })
     .then(response => response.json())
     .then(data => {
@@ -42,6 +44,8 @@ function callPCAandCluster(n_clusters) {
 
 document.addEventListener("DOMContentLoaded", () => {
     const dropdown = document.getElementById("cluster-dropdown");
+    const positionFilter = document.getElementById("position-filter");
+
     dropdown.value = "3";  // default number of clusters
 
     callPCAandCluster(3);
@@ -50,6 +54,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const clusterNumber = dropdown.value;
         //call to update number of clusters
         callPCAandCluster(clusterNumber);
+    });
+
+    positionFilter.addEventListener("change", () => {
+        const clusterNumber = dropdown.value;
+        callPCAandCluster(clusterNumber); // Re-fetch data on position filter change
     });
 });
 

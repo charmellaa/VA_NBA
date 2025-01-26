@@ -76,7 +76,8 @@
     <div class="right-section">
       <div class="scatterplot">
         <h4>Players' clusters</h4>
-        <div>
+        <div class = "dropdowns">
+        <div class = "clus-drop">
           <label for="cluster-dropdown">Choose number of clusters:</label>
           <select id="cluster-dropdown">
             <option value="2">2</option>
@@ -84,6 +85,21 @@
             <option value="4">4</option>
           </select>
         </div>
+        <div class="controls">
+          <label for="position-filter">Filter by Position:</label>
+          <select id="position-filter">
+              <option value="All positions">All Positions</option>
+              <option value="Forward">Forward</option>
+              <option value="Guard">Guard</option>
+              <option value="Center">Center</option>
+              <option value="Center-Forward">Center-Forward</option>
+              <option value="Forward-Center">Forward-Center</option>
+              <option value="Guard-Forward">Guard-Forward</option>
+              <option value="Forward-Guard">Forward-Guard</option>
+          </select>
+      </div>
+    </div>
+      
       </div>
       <div class="line-chart">
         <h4>Impact Analysis: Top 5 Players</h4>
