@@ -13,6 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let selectedPlayers = [];
 
+    let showPhysicalAttributes = true;
+
+
     const teamNameMap = {
       "ATL": "ATL - Atlanta Hawks",
       "BOS": "BOS - Boston Celtics",
@@ -46,24 +49,42 @@ document.addEventListener("DOMContentLoaded", () => {
       "WAS": "WAS - Washington Wizards"
     };
 
+
+
     d3.csv(dataFilePath).then(data => {
 
     //Physical and shooting metrics
-      let axes = ["Age", "Height_cm", "Weight_kg", "FG%", "3P%", "FT%", "FGA", "3PA", "FTA"];
+      let allAxes = ["Age", "Height_cm", "Weight_kg", "FG%", "3P%", "FT%", "FGA", "3PA", "FTA"];
+
+      
 
     // console.log("Valid axes:", axes); 
+      let axes = [...allAxes]; // Clone all axes initially
 
+      // Add a checkbox for toggling physical attributes
+      const container = d3.select(".parallel-coordinates");
+      const controlsContainer = container.insert("div", "svg#parallel-coordinates-svg")
+            .attr("class", "controls-container")
+            .style("display", "flex")
+            .style("align-items", "center") 
+            .style("grid-template-columns", "1fr 1fr")
+            .style("gap", "10px")
+            .style("font-size", "12px"); 
+
+       
       const teams = [...new Set(data.map(d => d.Team))];
 
-      // dropdown for team selection
-      const dropdown = d3.select(".parallel-coordinates")
-          .insert("select", "svg#parallel-coordinates-svg")
-          .attr("id", "team-dropdown")
-          .style("margin-bottom", "10px");
+       const dropdown = controlsContainer
+       .append("select")
+       .attr("id", "team-dropdown")
+       .style("grid-column", "1");
 
       dropdown.append("option")
           .attr("value", "all")
-          .text("All Teams");
+          .text("All Teams")
+          .style("font-size", "11px")
+       .style("grid-column", "1");
+
 
       teams.forEach(teamAbbreviation => {
           dropdown.append("option")
@@ -71,7 +92,23 @@ document.addEventListener("DOMContentLoaded", () => {
               .text(teamNameMap[teamAbbreviation]);
       });
 
-      const container = d3.select(".parallel-coordinates");
+      controlsContainer.append("label")
+      .attr("for", "toggle-physical-attributes")
+      .text("Show Physical Attributes: ");
+
+     controlsContainer.append("input")
+           .attr("type", "checkbox")
+           .attr("id", "toggle-physical-attributes")
+           .attr("checked", true) // Initially checked 
+           .on("change", function () {
+               showPhysicalAttributes = this.checked;
+               axes = showPhysicalAttributes
+                   ? [...allAxes]
+                   : allAxes.filter(axis => !["Age", "Height_cm", "Weight_kg"].includes(axis));
+               xScale.domain(axes);
+               redrawAxesAndLines();
+           });
+
       const containerWidth = container.node().clientWidth;
       const containerHeight = container.node().clientHeight;
 
@@ -79,34 +116,46 @@ document.addEventListener("DOMContentLoaded", () => {
       const width = containerWidth - margin.left - margin.right;
       const height = containerHeight - margin.top - margin.bottom;
 
+      const reHighlight = () => {
+        const noPlayersSelected = selectedPlayers.length === 0;
+        chartGroup.selectAll(".player-line")
+          .attr("opacity", d => noPlayersSelected ? 0.8 : (selectedPlayers.includes(d.Player) ? 1 : 0.12)) // Default styling
+          .attr("stroke-width", d => noPlayersSelected ? 1 : (selectedPlayers.includes(d.Player) ? 7 : 1)); // Thicker stroke for selected
+
+    }
+
       const svg = container
         .select("svg#parallel-coordinates-svg")
         .attr("viewBox", `0 0 ${containerWidth} ${containerHeight}`)
-        .attr("preserveAspectRatio", "xMidYMid meet")
-        .call(
+        .attr("preserveAspectRatio", "xMidYMid meet");
+       /*.call(
             d3.zoom()
                 .scaleExtent([1, 8]) //  zooming 
                 .on("zoom", function (event) {
                 chartGroup.attr("transform", event.transform);
             })
-        );
+        );*/
 
       const chartGroup = svg.append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
 
-      const yScales = {};
-      axes.forEach(axis => {
-          const minValue = d3.min(data, d => +d[axis]);
-          const maxValue = d3.max(data, d => +d[axis]);
-          yScales[axis] = d3.scaleLinear()
-              .domain([minValue, maxValue])
-              .range([height, 0]);
-      });
+            const yScales = {};
+            const updateYScales = () => {
+                axes.forEach(axis => {
+                    const minValue = d3.min(data, d => +d[axis]);
+                    const maxValue = d3.max(data, d => +d[axis]);
+                    yScales[axis] = d3.scaleLinear()
+                        .domain([minValue, maxValue])
+                        .range([height, 0]);
+                });
+            };
+            updateYScales();
 
       const xScale = d3.scalePoint()
           .domain(axes)
           .range([0, width])
           .padding(0.5);
+
       
       const tooltip = d3.select("body")
           .append("div")
@@ -267,12 +316,33 @@ document.addEventListener("DOMContentLoaded", () => {
   
         drawLines(filteredData); // Redraw lines based on team selection
   
-      // Reapply highlighting for selected players
-        const noPlayersSelected = selectedPlayers.length === 0;
-        chartGroup.selectAll(".player-line")
-          .attr("opacity", d => noPlayersSelected ? 0.8 : (selectedPlayers.includes(d.Player) ? 1 : 0.12)) // Default styling
-          .attr("stroke-width", d => noPlayersSelected ? 1 : (selectedPlayers.includes(d.Player) ? 7 : 1)); // Thicker stroke for selected
+        reHighlight();
       });
+
+      const redrawAxesAndLines = () => {
+        updateYScales();
+
+        chartGroup.selectAll(".axis").remove();
+        chartGroup.selectAll(".player-line").remove();
+
+        axes.forEach(axis => {
+              const axisGroup = chartGroup.append("g")
+                  .attr("class", "axis")
+                  .attr("transform", `translate(${xScale(axis)}, 0)`);
+
+              axisGroup.append("text")
+                  .attr("y", -10)
+                  .attr("text-anchor", "middle")
+                  .attr("fill", "black")
+                  .text(axis);
+
+              axisGroup.call(d3.axisLeft(yScales[axis]).ticks(5));
+          });
+
+          drawLines(data);
+
+          reHighlight();
+      };
   
 
 
