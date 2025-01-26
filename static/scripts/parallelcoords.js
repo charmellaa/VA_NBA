@@ -321,28 +321,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const redrawAxesAndLines = () => {
         updateYScales();
-
+    
         chartGroup.selectAll(".axis").remove();
         chartGroup.selectAll(".player-line").remove();
-
+    
         axes.forEach(axis => {
-              const axisGroup = chartGroup.append("g")
-                  .attr("class", "axis")
-                  .attr("transform", `translate(${xScale(axis)}, 0)`);
-
-              axisGroup.append("text")
-                  .attr("y", -10)
-                  .attr("text-anchor", "middle")
-                  .attr("fill", "black")
-                  .text(axis);
-
-              axisGroup.call(d3.axisLeft(yScales[axis]).ticks(5));
-          });
-
-          drawLines(data);
-
-          reHighlight();
-      };
+            const axisGroup = chartGroup.append("g")
+                .attr("class", "axis")
+                .attr("transform", `translate(${xScale(axis)}, 0)`)
+                .data([axis]) 
+                .call(dragBehavior); 
+    
+            axisGroup.append("text")
+                .attr("y", -10)
+                .attr("text-anchor", "middle")
+                .attr("fill", "black")
+                .text(axis);
+    
+            axisGroup.call(d3.axisLeft(yScales[axis]).ticks(5));
+        });
+    
+        drawLines(data);
+    
+        reHighlight();
+    };
   
 
 
