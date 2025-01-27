@@ -6,7 +6,7 @@
 
 ## Go to project directory and run the application
 
-    ```
+    
     python app.py
-    ```
+    
 
