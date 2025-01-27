@@ -229,14 +229,14 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
             }
         };
 
-        const updatePlayersList = () => {
+       /*const updatePlayersList = () => {
             const filteredData = playerListData.filter(player => {
                 const matchesPosition = selectedPosition === "" || player.Position === selectedPosition;
                 return matchesPosition;
             });
 
             renderPlayers(filteredData);
-        };
+        };*/
 
         
         const updateDeselectButton = () => {
@@ -286,22 +286,18 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
         //Search for a specific player or players of a team
         search.on("input", function () {
             const searchInput = this.value.toLowerCase();
-            const matchingTeam = Object.entries(teamNameMap).find(([abbr, name]) =>
-                abbr.toLowerCase().includes(searchInput) || name.toLowerCase().includes(searchInput)
-            );
-
-            let filteredPlayers;
-
-            if (matchingTeam) {
-                const teamAbbr = matchingTeam[0];
-                filteredPlayers = playerListData.filter(player => player.Team === teamAbbr);
-            } else {
-                filteredPlayers = playerListData.filter(player =>
-                    player.Player && player.Player.toLowerCase().includes(searchInput)
+        
+            // Filter by matching team or player name
+            const filteredPlayers = playerListData.filter(player => {
+                const matchesPlayerName = player.Player && player.Player.toLowerCase().includes(searchInput);
+                const matchesTeamName = Object.entries(teamNameMap).some(([abbr, name]) =>
+                    (abbr.toLowerCase().includes(searchInput) || name.toLowerCase().includes(searchInput)) &&
+                    player.Team === abbr
                 );
-            }
-            updatePlayersList();
-
+                return matchesPlayerName || matchesTeamName;
+            });
+        
+            // Update the player list in real time
             renderPlayers(filteredPlayers);
             updateDeselectButton();
         });
