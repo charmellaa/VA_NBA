@@ -212,7 +212,7 @@ d3.csv("/data/playerslist.csv").then(playerListData => {
                     })
                     .html(d => `
                         <div class="player-photo">
-                            <img src="${d.Player_img && d.Player_img !== 'null' ? d.Player_img : 'default.png'}" alt="${d.Player || 'Unknown Player'}" style="border: 2px solid ${positionColors[d.Position]}">
+                            <img src="${d.Player_img && d.Player_img !== 'null' ? d.Player_img : '/data/default.png'}" alt="${d.Player || 'Unknown Player'}" style="border: 2px solid ${positionColors[d.Position]}">
                         </div>
                         <div class="player-info">
                             <p class="player-name" style="color: ${positionColors[d.Position] || '#ffffff'};">

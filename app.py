@@ -57,10 +57,11 @@ def compute_eff(player): #efficiency
     FGM = player['FGM']
     FTA = player['FTA']
     FTM = player['FTM']
+    GP = player['GP']
 
         
     # formula for calculating Efficiency with general performance metrics
-    eff = (PTS + REB + AST + STL + BLK - ((FGA - FGM) + (FTA - FTM) + TOV))
+    eff = (PTS + REB + AST + STL + BLK - ((FGA - FGM) + (FTA - FTM) + TOV))/GP
     return eff
 
 #### EFFICIENCY COMPARISON ####

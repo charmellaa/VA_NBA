@@ -139,8 +139,19 @@ document.addEventListener("DOMContentLoaded", () => {
             })
         );*/
 
-      const chartGroup = svg.append("g")
+        const chartGroup = svg.append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // zoom behavior
+        const zoom = d3.zoom()
+            .scaleExtent([1, 8]) 
+            .translateExtent([[0, 0], [width, height]]) 
+            .on("zoom", (event) => {
+            chartGroup.attr("transform", event.transform);
+        });
+
+// Attach the zoom behavior to the svg element
+svg.call(zoom);
 
             const yScales = {};
             const updateYScales = () => {
