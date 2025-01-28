@@ -61,7 +61,7 @@ def compute_eff(player): #efficiency
 
         
     # formula for calculating Efficiency with general performance metrics
-    eff = (PTS + REB + AST + STL + BLK - ((FGA - FGM) + (FTA - FTM) + TOV))/GP
+    eff = PTS + REB + AST + STL + BLK - ((FGA - FGM) + (FTA - FTM) + TOV)
     return eff
 
 #### EFFICIENCY COMPARISON ####
