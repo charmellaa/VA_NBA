@@ -82,9 +82,9 @@ def get_eff_comparison():
         selected_player_eff = compute_eff(selected_player)
 
         # compute the mean of other players' efficiency
-        #other_players = nba_data[nba_data['Player'] != player_name]
-        #other_players_eff = other_players.apply(compute_eff, axis=1)
-        other_players_eff = nba_data.apply(compute_eff, axis=1)
+        other_players = nba_data[nba_data['Player'] != player_name]
+        other_players_eff = other_players.apply(compute_eff, axis=1)
+        #other_players_eff = nba_data.apply(compute_eff, axis=1)
         avg_eff = other_players_eff.mean()
 
         return jsonify({
