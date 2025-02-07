@@ -206,13 +206,34 @@ d3.csv('data/top_pies.csv').then(data => {
                     // Tooltip with player's values shown on line click
                     tooltipGroup = svg.append('g')
                       .attr('class', 'tooltip-group')
-                      .attr('transform', `translate(${event.offsetX}, ${event.offsetY})`);
 
+                      const tooltipWidth = 200;
+                      const tooltipHeight = 100;
+          
+                      let left = event.offsetX + 15; // Default placement to the right
+                      let top = event.offsetY - tooltipHeight / 2; // Centered vertically
+          
+                      // Prevent tooltip from overflowing on the right
+                      if (left + tooltipWidth > width + margin.left) {
+                          left = event.offsetX - tooltipWidth - 15; // Move it to the left
+                      }
+          
+                      // Prevent tooltip from overflowing at the bottom
+                      if (top + tooltipHeight > height + margin.top) {
+                          top = height + margin.top - tooltipHeight - 5; // Move it up
+                      }
+          
+                      // Prevent tooltip from going above the chart
+                      if (top < margin.top) {
+                          top = margin.top + 5; // Move it down
+                      }
+          
+                      tooltipGroup.attr('transform', `translate(${left}, ${top})`);
                     tooltipGroup.append('rect')
-                      .attr('width', 200)
-                      .attr('height', 100)
-                      .attr('x', 10)
-                      .attr('y', -10)
+                      .attr('width', tooltipWidth)
+                      .attr('height', tooltipHeight)
+                      .attr('x', 0)
+                      .attr('y', 0)
                       .attr('rx', 5)
                       .attr('ry', 5)
                       .attr('fill', 'white')

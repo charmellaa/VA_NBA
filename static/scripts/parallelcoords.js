@@ -282,10 +282,35 @@ svg.call(zoom);
                 // Show tooltip
                 const tooltipContent = `<strong>${d.Player}</strong><br>` +
                     axes.map(axis => `${axis}: ${d[axis]}`).join("<br>");
+                
                 tooltip.style("display", "block")
-                    .html(tooltipContent)
-                    .style("left", `${event.pageX + 10}px`)
-                    .style("top", `${event.pageY - 20}px`);
+                       .html(tooltipContent);
+            
+                const mouseX = event.pageX;
+                const mouseY = event.pageY;
+            
+                const tooltipWidth = tooltip.node().offsetWidth;
+                const tooltipHeight = tooltip.node().offsetHeight;
+            
+                const windowWidth = window.innerWidth;
+                const windowHeight = window.innerHeight;
+            
+                let x = mouseX + 10;
+                let y = mouseY - 20;
+            
+                if (x + tooltipWidth > windowWidth) {
+                    x = mouseX - tooltipWidth - 10;
+                }
+            
+                if (y + tooltipHeight > windowHeight) {
+                    y = mouseY - tooltipHeight - 10;
+                }
+            
+                if (y < 0) {
+                    y = 10;
+                }
+            
+                tooltip.style("left", `${x}px`).style("top", `${y}px`);
             })
             .on("mouseout", function (event, d) {
               // Restore this line's appearance
@@ -303,7 +328,7 @@ svg.call(zoom);
        
                 tooltip.style("display", "none");
             });
-          
+            
           };
 
       

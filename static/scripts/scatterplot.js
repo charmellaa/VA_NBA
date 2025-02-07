@@ -172,8 +172,51 @@ function renderScatterplot(data, excludedColors = []) {
                 .style("padding", "5px")
                 .style("pointer-events", "none")
                 .html(`<strong>${d.Player}</strong><br>PC1: ${d.PC1}<br>PC2: ${d.PC2}`)
-                .style("left", (event.pageX + 5) + "px")
-                .style("top", (event.pageY - 28) + "px");
+            
+            const tooltipWidth = tooltip.node().offsetWidth || 150; 
+            const tooltipHeight = tooltip.node().offsetHeight || 50;
+
+            let left = event.pageX + 15;
+            let top = event.pageY - tooltipHeight / 2;
+
+    
+            if (left + tooltipWidth > window.innerWidth) {
+                left = event.pageX - tooltipWidth - 15;
+            }
+
+    
+            if (top + tooltipHeight > window.innerHeight) {
+                top = window.innerHeight - tooltipHeight - 10;
+            }
+
+            if (top < 10) {
+                top = 10;
+            }
+
+            tooltip.style("left", `${left}px`).style("top", `${top}px`);
+        })
+        .on("mousemove", (event) => {
+    
+            const tooltip = d3.select(".tooltip");
+
+            if (!tooltip.empty()) {
+                let left = event.pageX + 15;
+                let top = event.pageY - tooltip.node().offsetHeight / 2;
+
+                if (left + tooltip.node().offsetWidth > window.innerWidth) {
+                    left = event.pageX - tooltip.node().offsetWidth - 15;
+                }
+
+                if (top + tooltip.node().offsetHeight > window.innerHeight) {
+                    top = window.innerHeight - tooltip.node().offsetHeight - 10;
+                }
+
+                if (top < 10) {
+                    top = 10;
+                }   
+
+                tooltip.style("left", `${left}px`).style("top", `${top}px`);
+            }
         })
         .on("mouseout", () => {
             d3.select(".tooltip").remove();
