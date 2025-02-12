@@ -22,5 +22,5 @@ http://127.0.0.1:5000
 
 ### Documents
 
-- [Project Report](https://github.com/charmellaa/VA_NBA/blob/main/docs/Veport.pdf)  
+- [Project Report](https://github.com/charmellaa/VA_NBA/blob/main/docs/Report.pdf)  
 - [Presentation](https://github.com/charmellaa/VA_NBA/blob/main/docs/Presentation.pdf)
